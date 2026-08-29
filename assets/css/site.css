@@ -981,6 +981,9 @@ html{scrollbar-gutter:stable}
     transition:opacity .8s var(--e-out),transform .8s var(--e-out);
     pointer-events:auto;
   }
+  /* ::before is the image bed, ::after carries both the scrim and the ghost
+     numeral - one pseudo-element doing two jobs so the beats keep their
+     existing two-layer structure instead of needing new markup. */
   .chapter::before{
     content:"";position:absolute;inset:0;z-index:0;
     background:url(../img/hero-poster-mobile.webp) center/cover no-repeat;
@@ -989,7 +992,26 @@ html{scrollbar-gutter:stable}
   .chapter::after{
     content:"";position:absolute;inset:0;z-index:1;
     background:linear-gradient(180deg,rgba(8,8,10,.2) 0%,rgba(8,8,10,.55) 55%,rgba(8,8,10,.9) 100%);
+    display:flex;align-items:flex-end;justify-content:flex-end;
+    padding:0 20px calc(.25rem + env(safe-area-inset-bottom));
+    font-family:Archivo,sans-serif;font-weight:800;font-size:28vw;line-height:.78;
+    letter-spacing:-.05em;color:rgba(255,255,255,.04);
+    pointer-events:none;
   }
+
+  /* 01 - the same camera, but read at the lens: a hard macro crop, so the
+     beat is a new frame rather than the hero photograph a second time */
+  #chapA::before{
+    background-size:320%;
+    background-position:44% 63%;
+    filter:grayscale(1) brightness(.45);
+  }
+  #chapA::after{content:"01"}
+
+  /* 02 - no photograph at all. The cut lands on type alone. */
+  #chapB{background:#0b0b0e}
+  #chapB::before{display:none}
+  #chapB::after{content:"02";background:none}
   .chapter>*{position:relative;z-index:2}
   .chapter.is-in{opacity:1;transform:none}
   /* .static-hero is the desktop no-WebGL collapse, and it hides the beats
