@@ -5,6 +5,11 @@ const S = window.SITE || {};
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* 56.25rem = 900px. One breakpoint object, referenced by every mobile guard,
+   so the CSS media queries and the JS guards can never drift apart. */
+const MOBILE_MQ = matchMedia('(max-width:56.25rem)');
+const DESKTOP_MQ = matchMedia('(min-width:56.3125rem)');
+const isMobile = () => MOBILE_MQ.matches;
 const SAVE_DATA_EARLY = !!(navigator.connection && navigator.connection.saveData);
 const FINE = matchMedia('(hover:hover) and (pointer:fine)').matches;
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -35,11 +40,21 @@ function track(action, detail) {
    cannot be trusted and everything it was holding back is released instead. */
 const HAS_IO = typeof IntersectionObserver === 'function';
 let ioAlive = false;
+/* The probe is held in a variable on purpose. An IntersectionObserver with no
+   reference anywhere has been collected before delivering its first callback
+   in some builds, which made this liveness check report a false negative and
+   dropped the whole page into the fallback path. It also observes <body>
+   rather than the root element, because observing the implicit root itself is
+   an edge case not every engine reports the same way. */
+let ioProbe = null;
 if (HAS_IO) {
   try {
-    new IntersectionObserver((e, o) => { ioAlive = true; o.disconnect(); })
-      .observe(document.documentElement);
-  } catch (e) { /* treated as dead below */ }
+    ioProbe = new IntersectionObserver(() => {
+      ioAlive = true;
+      if (ioProbe) { ioProbe.disconnect(); ioProbe = null; }
+    });
+    ioProbe.observe(document.body);
+  } catch (e) { ioProbe = null; }
 }
 /* Anything the observer would have triggered registers here too, with the
    element that was supposed to trigger it. If the observer turns out to be
@@ -531,7 +546,7 @@ $$('h1,h2,.display').forEach(h => { if (h.querySelector('.ln') && io) io.observe
 function releaseEverything() {
   document.documentElement.classList.add('io-fallback');
   /* content first, and all of it - nothing stays invisible */
-  $$('.reveal,.ln').forEach(el => el.classList.add('is-in'));
+  $$('.reveal,.ln,.chapter').forEach(el => el.classList.add('is-in'));
   /* media second, and only as it is approached */
   let pending = deferred.slice(), timer = 0;
   const sweep = () => {
@@ -572,8 +587,38 @@ if (S.reel.poster) reelStage.style.backgroundImage = `url("${S.reel.poster}")`;
    when the observer is dead - and a guard on only one of them is not a guard.
    On data saver the poster stays, which is a real frame of the reel, so the
    section is still finished; it just does not move. */
+/* On a phone the reel is tap-to-play: the poster is a real frame, so the
+   section is finished before a single byte of video moves. autoplay is also
+   removed there - it and preload="none" pull in opposite directions, and on
+   mobile we want preload to win. */
+const reelPlay = $('#reelPlay');
+let reelStarted = false;
+if (isMobile()) reelVid.removeAttribute('autoplay');
+
+function startReel() {
+  reelStarted = true;
+  if (!reelVid.getAttribute('src')) {
+    /* Assigning src already queues a load. Calling load() as well aborts the
+       play() below, which left the first tap sitting on a paused video with
+       the play button already hidden. Set the source, then play when there is
+       something to play. */
+    reelVid.src = S.reel.src;
+    reelVid.addEventListener('canplay', () => reelVid.play().catch(() => {}), { once: true });
+  }
+  reelVid.play().catch(() => {});
+  track('reel_play');
+}
+/* the affordance follows what the video is actually doing, not what we asked
+   it to do - so a blocked or failed play leaves the button where it was */
+reelVid.addEventListener('playing', () => reelStage.classList.add('is-playing'));
+reelVid.addEventListener('pause', () => {
+  if (isMobile() && reelVid.currentTime === 0) reelStage.classList.remove('is-playing');
+});
+if (reelPlay) reelPlay.addEventListener('click', startReel);
+
 const loadReel = whenSeen(() => {
   if (SAVE_DATA_EARLY) return;
+  if (isMobile()) return;                 /* mobile waits for a deliberate tap */
   if (reelVid.getAttribute('src')) return;
   reelVid.src = S.reel.src; reelVid.load();
 }, reelStage, 500);
@@ -587,7 +632,9 @@ if (!SAVE_DATA_EARLY && HAS_IO) {
 if (HAS_IO) {
   new IntersectionObserver(es => es.forEach(e => {
     if (!reelVid.src) return;
-    e.isIntersecting ? reelVid.play().catch(() => {}) : reelVid.pause();
+    if (!e.isIntersecting) return reelVid.pause();
+    if (isMobile() && !reelStarted) return;   /* never resume what was never started */
+    reelVid.play().catch(() => {});
   }), { threshold: 0.12 }).observe(reelStage);
 }
 
@@ -828,7 +875,11 @@ function heroFallback() {
   finishBoot();
 }
 
-const wantScene = canWebGL && !RM && !SAVE_DATA && !LOW_POWER;
+/* The viewport is the first question, not the last. A phone with a fast GPU
+   and 8 GB of RAM still has no business downloading 2.2 MB of Three.js for a
+   hero that is one screen tall and shows a still image. Below 900px the
+   module is never fetched, parsed or run. */
+const wantScene = DESKTOP_MQ.matches && canWebGL && !RM && !SAVE_DATA && !LOW_POWER;
 
 if (!wantScene) {
   setBoot(1, 'Ready');
@@ -862,13 +913,31 @@ if (!wantScene) {
          .then(boot3D).catch(fail3D);
 }
 
-/* hero scroll → fade the copy, drive the progress bar */
+/* hero scroll → fade the copy, drive the progress bar (desktop only) */
 const heroCopy = $('#heroCopy'), chapA = $('#chapA'), chapB = $('#chapB'),
-      cue = $('#cue'), prog = $('#prog'), heroScroll = $('#heroScroll');
+      cue = $('#cue'), prog = $('#prog'), heroScroll = $('#heroScroll'),
+      heroSticky = $('#heroSticky'), heroPoster = $('#heroPoster');
 const segf = (p, a, b) => clamp((p - a) / (b - a), 0, 1);
 let heroQueued = false;
+
+/* Everything the desktop handler writes is inline, and inline styles outlive
+   a media query. Crossing into mobile has to wipe them or the copy stays
+   latched at opacity:0 on the very screen that is supposed to be static. */
+function clearHeroInline() {
+  [heroCopy, chapA, chapB, cue, prog, heroPoster].forEach(el => {
+    if (!el) return;
+    el.style.opacity = '';
+    el.style.transform = '';
+    el.style.pointerEvents = '';
+    el.style.width = '';
+  });
+}
+
 function heroCopyTick() {
   heroQueued = false;
+  /* On a phone the hero is a single static screen. This returns before it can
+     write one style: the scrub is not hidden, it does not run. */
+  if (isMobile()) return;
   const span = heroScroll.offsetHeight - innerHeight;
   const p = span > 0 ? clamp(-heroScroll.getBoundingClientRect().top / span, 0, 1) : 0;
   const out = 1 - segf(p, 0.14, 0.27);
@@ -884,5 +953,71 @@ function heroCopyTick() {
 }
 addEventListener('scroll', () => { if (!heroQueued) { heroQueued = true; raf(heroCopyTick); } }, { passive: true });
 addEventListener('resize', heroCopyTick);
-heroCopyTick();
+
+/* ══════════════════════════════════════════════════════ mobile hero
+   The desktop hero is a 3.2-screen scrub through a WebGL scene. On a phone
+   that bought two viewports of blank white and 2.2 MB of JavaScript, so the
+   phone gets a different thing entirely: one screen, a still camera, and the
+   two chapter beats promoted to real cards below it.                        */
+
+/* ---- 1b. the camera grows on scroll -------------------------------------
+   One custom property, written from a rAF-throttled scroll listener and
+   consumed by a single transform. No layout-triggering property is touched,
+   and the ceiling is enforced twice - once by clamping progress and once by
+   clamping the result - because an uncapped scale eventually eats the copy. */
+const CAM_MIN = 0.82, CAM_MAX = 1.10;
+let camQueued = false;
+function camTick() {
+  camQueued = false;
+  if (!isMobile()) return;
+  if (RM) { heroScroll.style.setProperty('--cam', '1'); return; }
+  const span = heroSticky.offsetHeight || innerHeight;
+  const p = clamp(scrollY / span, 0, 1);
+  const s = clamp(CAM_MIN + (CAM_MAX - CAM_MIN) * p, CAM_MIN, CAM_MAX);
+  heroScroll.style.setProperty('--cam', s.toFixed(4));
+}
+addEventListener('scroll', () => { if (!camQueued) { camQueued = true; raf(camTick); } }, { passive: true });
+
+/* ---- 1c. the two beats become cards in normal flow ----------------------
+   On desktop they are absolutely positioned inside the sticky viewport; on a
+   phone they are full-screen cards after it. That is a real DOM move, and it
+   has to be reversible - putting them back before #cue restores the exact
+   original order so desktop is untouched. */
+function placeChapters() {
+  if (!chapA || !chapB || !heroSticky) return;
+  if (isMobile()) {
+    /* siblings of the hero, ahead of the reel - so .hero really is one
+       viewport tall and the cards are two more screens after it */
+    if (chapA.parentElement === heroSticky && reelSection && reelSection.parentElement) {
+      reelSection.parentElement.insertBefore(chapA, reelSection);
+      reelSection.parentElement.insertBefore(chapB, reelSection);
+    }
+  } else if (chapA.parentElement !== heroSticky) {
+    /* back to the exact original order: heroCopy, chapA, chapB, cue */
+    heroSticky.insertBefore(chapA, cue);
+    heroSticky.insertBefore(chapB, cue);
+  }
+}
+
+/* a plain fade-in on enter - not scrubbed, so it cannot stall half-drawn */
+let chapObs = null;
+function watchChapters() {
+  if (!HAS_IO || chapObs || !chapA) return;
+  chapObs = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('is-in');
+    chapObs.unobserve(e.target);
+  }), { threshold: 0.15 });
+  [chapA, chapB].forEach(el => el && chapObs.observe(el));
+}
+
+function syncHeroMode() {
+  clearHeroInline();
+  placeChapters();
+  if (isMobile()) { watchChapters(); camTick(); }
+  else heroScroll.style.removeProperty('--cam');
+  heroCopyTick();
+}
+onMQ(MOBILE_MQ, syncHeroMode);
+syncHeroMode();
 })();

@@ -63,7 +63,12 @@
 (function () {
   var d = document.documentElement;
   d.className = d.className.replace('no-js', '') + ' js';
-  setTimeout(function () { d.classList.add('boot-timeout'); }, 5000);
+  /* Only stamp boot-timeout if the boot sequence really did not finish.
+     app.js sets .is-live the moment the curtain lifts, so this class is a
+     genuine failure signal rather than a clock that always fires. */
+  setTimeout(function () {
+    if (!d.classList.contains('is-live')) d.classList.add('boot-timeout');
+  }, 5000);
 })();
 </script>
 
@@ -239,6 +244,9 @@
            poster="assets/img/reel-poster.webp"
            aria-label="Infinity showreel"></video>
     <div class="reel-scrim" aria-hidden="true"></div>
+    <button class="reel-play" id="reelPlay" type="button" aria-label="Play showreel">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+    </button>
     <button class="icon-btn reel-sound" id="reelSound" aria-label="Unmute showreel" type="button" data-cursor="Sound">
       <svg viewBox="0 0 24 24" id="soundIcon" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>
     </button>
