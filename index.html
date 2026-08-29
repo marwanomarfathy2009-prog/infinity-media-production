@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>INFINITY | Media Production Studio in Hurghada, Egypt</title>
+<meta name="description" content="Infinity is a media production studio in Hurghada, Egypt. Direction, camera and post under one roof. Brand films, commercials, documentary and event coverage.">
+
+<!-- Set window.SITE_ORIGIN in the block below at deploy time. Everything that
+     has to be an absolute URL - canonical, og:url, og:image, twitter:image and
+     the whole structured-data graph - is resolved from it, so there is exactly
+     one line to change and nothing can be left pointing at a local path. -->
+<script>window.SITE_ORIGIN = "";</script>
+
+<link rel="canonical" href="/">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)">
+
+<meta property="og:site_name" content="Infinity Media Production">
+<meta property="og:locale" content="en">
+<meta property="og:url" content="/">
+<meta property="og:title" content="INFINITY | Media Production Studio">
+<meta property="og:description" content="Built frame by frame. Direction, camera and post under one roof.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/og.webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Infinity Media Production">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="INFINITY | Media Production Studio">
+<meta name="twitter:description" content="Built frame by frame. Direction, camera and post under one roof.">
+<meta name="twitter:image" content="assets/img/og.webp">
+<meta name="twitter:image:alt" content="Infinity Media Production">
+
+<link rel="icon" href="assets/img/logo.webp" type="image/webp">
+<link rel="apple-touch-icon" href="assets/img/logo.webp">
+
+<!-- Three faces are on screen before anything else: body text, the hero
+     headline, and the small caps used for every label. Those three are
+     fetched now; the other five arrive with the sections that need them. -->
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/archivo-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/archivo-800.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/space-grotesk-600.woff2" crossorigin>
+
+<!-- The hero still is the largest thing painted on first load, so it is
+     fetched alongside the stylesheet rather than after it. One variant per
+     layout, never both. -->
+<link rel="preload" as="image" href="assets/img/hero-poster.webp"
+      media="(min-width:56.3125rem)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/img/hero-poster-mobile.webp"
+      media="(max-width:56.25rem)" fetchpriority="high">
+
+<link rel="stylesheet" href="assets/css/site.css">
+
+<script>
+/* Two jobs, both of which must happen before first paint.
+
+   1. Tell the stylesheet that script is alive. Without this the loading
+      curtain is never drawn at all, so a page with broken or blocked
+      JavaScript shows the site instead of a white screen forever.
+   2. Arm a failsafe. If app.js 404s or throws while parsing, nothing else
+      will ever lift the curtain - this will. */
+(function () {
+  var d = document.documentElement;
+  d.className = d.className.replace('no-js', '') + ' js';
+  setTimeout(function () { d.classList.add('boot-timeout'); }, 5000);
+})();
+</script>
+
+
+
+<script type="application/ld+json" id="ld-graph">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ORIGIN}}/#website",
+      "url": "{{ORIGIN}}/",
+      "name": "Infinity Media Production",
+      "inLanguage": "en",
+      "publisher": { "@id": "{{ORIGIN}}/#org" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "{{ORIGIN}}/#webpage",
+      "url": "{{ORIGIN}}/",
+      "name": "INFINITY | Media Production Studio",
+      "description": "Infinity is a media production studio in Hurghada, Egypt. Direction, camera and post under one roof.",
+      "isPartOf": { "@id": "{{ORIGIN}}/#website" },
+      "about": { "@id": "{{ORIGIN}}/#org" },
+      "primaryImageOfPage": { "@id": "{{ORIGIN}}/#primaryimage" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "ImageObject",
+      "@id": "{{ORIGIN}}/#primaryimage",
+      "url": "{{ORIGIN}}/assets/img/og.webp",
+      "contentUrl": "{{ORIGIN}}/assets/img/og.webp",
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "@type": ["Organization", "LocalBusiness"],
+      "@id": "{{ORIGIN}}/#org",
+      "name": "Infinity Media Production",
+      "alternateName": "Infinity",
+      "url": "{{ORIGIN}}/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ORIGIN}}/assets/img/logo.webp",
+        "width": 150,
+        "height": 150
+      },
+      "image": "{{ORIGIN}}/assets/img/og.webp",
+      "description": "Media production studio. Direction, camera and post under one roof.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Hurghada",
+        "addressRegion": "Red Sea",
+        "addressCountry": "EG"
+      },
+      "areaServed": { "@type": "Country", "name": "Egypt" },
+      "knowsLanguage": ["ar", "en"],
+      "sameAs": []
+    }
+  ]
+}
+</script>
+
+<!-- Canonical, og:url, both social images and every @id in the structured
+     data resolve to the deployed origin. Served from file:// they are left
+     alone rather than rewritten into something invalid. -->
+<script>
+(function () {
+  try {
+    var origin = (window.SITE_ORIGIN || location.origin).replace(/\/$/, '');
+    if (!/^https?:/.test(origin)) return;              // file:// preview, leave as-is
+    var abs = function (p) { return origin + '/' + String(p).replace(/^\//, ''); };
+    var can = document.querySelector('link[rel="canonical"]');
+    if (can) can.href = origin + '/';
+    var ogu = document.querySelector('meta[property="og:url"]');
+    if (ogu) ogu.content = origin + '/';
+    /* A crawler cannot fetch a relative og:image and will not render a data
+       URI at all - both have to become real absolute URLs here. */
+    ['meta[property="og:image"]', 'meta[name="twitter:image"]'].forEach(function (sel) {
+      var m = document.querySelector(sel);
+      if (m && !/^https?:/.test(m.content)) m.content = abs(m.content);
+    });
+    var ld = document.getElementById('ld-graph');
+    if (ld) ld.textContent = ld.textContent.split('{{ORIGIN}}').join(origin);
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor-dot"></span><span class="cursor-ring"><span class="cursor-label"></span></span></div>
+
+<div class="boot" id="boot" role="status" aria-live="polite">
+  <div class="boot-in">
+    <div class="boot-mark"><img src="assets/img/logo.webp" alt="" width="34" height="34" decoding="async" fetchpriority="high"><span>INFINITY</span></div>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+    <div class="boot-meta"><span id="bootPct">00</span><span id="bootMsg">Loading</span></div>
+  </div>
+</div>
+
+<a class="skip" href="#reel">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" aria-label="Infinity, home">
+      <img src="assets/img/logo.webp" alt="" width="26" height="26" decoding="async">
+      <span>INFINITY</span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Sections">
+      <a href="#reel">Reel</a><a href="#work">Work</a>
+      <a href="#studio">Studio</a><a href="#contact">Contact</a>
+      <i class="nav-ink" id="navInk" aria-hidden="true"></i>
+    </nav>
+    <a class="btn btn-solid nav-cta" href="#contact" data-magnet>Start a project</a>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Open menu"><i></i></button>
+  </div>
+</header>
+
+<div class="drawer" id="drawer">
+  <nav class="drawer-nav" aria-label="Menu">
+    <a href="#reel"><em>01</em>Reel</a><a href="#work"><em>02</em>Work</a>
+    <a href="#studio"><em>03</em>Studio</a><a href="#contact"><em>04</em>Contact</a>
+  </nav>
+  <a class="btn btn-solid btn-lg drawer-cta" href="#contact">Start a project</a>
+  <div class="drawer-foot">
+    <a id="mDrawerMail" href="mailto:marwanomarfathy2009@gmail.com">marwanomarfathy2009@gmail.com</a>
+    <a id="mDrawerTel" href="https://wa.me/201016495305" target="_blank" rel="noopener">+20 101 649 5305</a>
+  </div>
+</div>
+
+<main id="top">
+
+<!-- ══ HERO ══ -->
+<section id="heroScroll" class="hero" aria-label="Infinity media production studio">
+  <div id="heroSticky">
+    <div class="hero-stage" aria-hidden="true"></div>
+    <canvas id="gl" aria-hidden="true"></canvas>
+    <div id="heroPoster" role="img" aria-label="A Canon AT-1 film camera, rendered in the studio"></div>
+    <div class="hero-vignette" aria-hidden="true"></div>
+
+    <div class="hero-copy" id="heroCopy">
+      <p class="eyebrow">Media production studio, Hurghada</p>
+      <h1 class="display">
+        <span class="ln"><span>Built</span></span>
+        <span class="ln"><span>frame by</span></span>
+        <span class="ln"><span>frame.</span></span>
+      </h1>
+      <p class="lede">A production studio for brands that want the shot to carry the story.
+        Direction, camera and post, under one roof.</p>
+      <div class="hero-actions">
+        <a class="btn btn-solid btn-lg" href="#contact" data-magnet data-cursor="Let's talk">
+          Start a project <svg class="arw" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg>
+        </a>
+        <a class="btn btn-line btn-lg" href="#reel" data-magnet data-cursor="Play">Watch the reel</a>
+      </div>
+    </div>
+
+    <div class="chapter" id="chapA"><h2>Every part, deliberate.</h2>
+      <p>Shutter, dial, frame. We take it apart before we build it back.</p></div>
+    <div class="chapter" id="chapB"><h2>Then it all clicks.</h2>
+      <p>Concept, production and post assembled into one finished piece.</p></div>
+
+    <div class="scroll-cue" id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+    <div class="hero-progress"><i id="prog"></i></div>
+  </div>
+</section>
+
+<!-- ══ REEL ══ -->
+<section id="reel" class="band reel" aria-labelledby="reel-h">
+  <div class="reel-stage" id="reelStage">
+    <video id="reelVid" autoplay muted loop playsinline preload="none"
+           poster="assets/img/reel-poster.webp"
+           aria-label="Infinity showreel"></video>
+    <div class="reel-scrim" aria-hidden="true"></div>
+    <button class="icon-btn reel-sound" id="reelSound" aria-label="Unmute showreel" type="button" data-cursor="Sound">
+      <svg viewBox="0 0 24 24" id="soundIcon" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>
+    </button>
+    <div class="reel-copy wrap">
+      <p class="eyebrow">The reel</p>
+      <h2 class="h1" id="reel-h"><span class="ln"><span>If it moves,</span></span><span class="ln"><span>we've filmed it.</span></span></h2>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WORK ══ -->
+<section id="work" class="band" aria-labelledby="work-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">Selected work</p>
+        <h2 class="h1" id="work-h">Films.</h2>
+      </div>
+      <p class="lede">Brand films, documentaries and campaign work, where the story gets room to breathe.</p>
+    </div>
+  </div>
+  <div class="wrap"><div class="films" id="filmsRow"></div></div>
+
+  <div class="wrap" id="shortsHead">
+    <div class="sec-head sec-head-tight">
+      <div>
+        <p class="eyebrow">Vertical</p>
+        <h2 class="h2">Shorts.</h2>
+      </div>
+      <div class="rail-nav">
+        <button class="icon-btn" data-rail="shortsRow" data-dir="-1" aria-label="Previous shorts" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button class="icon-btn" data-rail="shortsRow" data-dir="1" aria-label="Next shorts" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" id="shortsWrap"><div class="rail" id="shortsRow"></div></div>
+</section>
+
+<!-- ══ STUDIO ══ -->
+<section id="studio" class="band" aria-labelledby="studio-h">
+  <div class="wrap">
+    <div class="studio-top">
+      <div>
+        <p class="eyebrow">Studio</p>
+        <h2 class="h1" id="studio-h"><span class="ln"><span>A small crew,</span></span><span class="ln"><span>obsessed with</span></span><span class="ln"><span>the details.</span></span></h2>
+      </div>
+      <div class="studio-aside">
+        <p class="lede">Infinity works end to end. The idea that leaves the room is the one that reaches
+          the screen. No hand-offs, no telephone game.</p>
+        <dl class="stats" id="statsRow">
+          <div><dt>4K&rarr;8K</dt><dd>Capture pipeline</dd></div>
+          <div><dt>In-house</dt><dd>Edit &middot; Color &middot; Sound</dd></div>
+          <div><dt>End to end</dt><dd>Concept to delivery</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="svc" id="svc" role="list">
+      <button class="svc-row" type="button" role="listitem" aria-expanded="false" data-cursor="Open">
+        <span class="svc-n">01</span>
+        <span class="svc-t">Brand films</span>
+        <span class="svc-x"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></span>
+        <span class="svc-body"><span>Cinematic storytelling built around the product and the people behind it.
+          Concept, script, shoot and grade. One team from the first conversation to delivery.</span></span>
+      </button>
+      <button class="svc-row" type="button" role="listitem" aria-expanded="false" data-cursor="Open">
+        <span class="svc-n">02</span>
+        <span class="svc-t">Commercials</span>
+        <span class="svc-x"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></span>
+        <span class="svc-body"><span>High-impact spots cut for broadcast, social and streaming. One shoot,
+          every aspect ratio you need, colour-matched across all of them.</span></span>
+      </button>
+      <button class="svc-row" type="button" role="listitem" aria-expanded="false" data-cursor="Open">
+        <span class="svc-n">03</span>
+        <span class="svc-t">Events &amp; coverage</span>
+        <span class="svc-x"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></span>
+        <span class="svc-body"><span>Multi-cam live coverage with same-week turnaround. Highlights while the
+          room still remembers it, the long cut when it matters.</span></span>
+      </button>
+      <button class="svc-row" type="button" role="listitem" aria-expanded="false" data-cursor="Open">
+        <span class="svc-n">04</span>
+        <span class="svc-t">Documentary</span>
+        <span class="svc-x"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></span>
+        <span class="svc-body"><span>Long-form work where the story needs room to breathe. Research, access,
+          patient shooting, and an edit that trusts the audience.</span></span>
+      </button>
+      <button class="svc-row" type="button" role="listitem" aria-expanded="false" data-cursor="Open">
+        <span class="svc-n">05</span>
+        <span class="svc-t">Post-production</span>
+        <span class="svc-x"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></span>
+        <span class="svc-body"><span>Editing, colour grading, sound design and finishing, including work
+          shot by someone else that needs rescuing.</span></span>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact" class="band contact" aria-labelledby="contact-h">
+  <div class="wrap">
+    <div class="contact-head">
+      <p class="eyebrow">Contact</p>
+      <h2 class="display" id="contact-h">
+        <span class="ln"><span>Let's build</span></span>
+        <span class="ln"><span>something worth</span></span>
+        <span class="ln"><span>watching.</span></span>
+      </h2>
+      <div class="contact-sub">
+        <p class="lede">Tell us what you're making. We'll tell you how we'd shoot it.</p>
+        <p class="promise"><span>Every enquiry gets a reply within one business day.</span></p>
+      </div>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <!-- These three rows are authored, not injected. config.js overrides
+             them at runtime, so if you change a value there, change it here
+             too - this copy is what a visitor with no JavaScript sees, and
+             what a crawler reads for the studio's contact details. -->
+        <a class="info-row" id="mEmail" href="mailto:marwanomarfathy2009@gmail.com">
+          <span class="k">Email</span><span class="v">marwanomarfathy2009@gmail.com</span>
+          <svg class="arw" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg>
+        </a>
+        <a class="info-row" id="mTel" href="https://wa.me/201016495305" target="_blank" rel="noopener">
+          <span class="k">WhatsApp</span><span class="v">+20 101 649 5305</span>
+          <svg class="arw" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg>
+        </a>
+        <div class="info-row is-static">
+          <span class="k">Studio</span><span class="v" id="mLoc">Hurghada, Red Sea, Egypt</span>
+        </div>
+        <div class="map" id="mapBox" role="img" aria-label="Map of the studio location"></div>
+        <p class="map-note"><span id="mapWhere">Hurghada, Red Sea, Egypt</span>
+          <a class="ul" id="mapLink" href="https://www.google.com/maps/search/?api=1&amp;query=Hurghada%2C%20Red%20Sea%2C%20Egypt"
+             target="_blank" rel="noopener">Open in Google Maps</a></p>
+      </div>
+
+      <form id="contactForm" novalidate>
+        <!-- Not a real field. Left empty by people, filled by bots. -->
+        <div class="hp" aria-hidden="true">
+          <label for="f-co">Company</label>
+          <input id="f-co" name="company" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <div class="field" id="fld-name">
+          <input id="f-name" name="name" type="text" placeholder=" " autocomplete="name" required>
+          <label for="f-name">Name</label>
+          <p class="err">Please tell us your name.</p>
+        </div>
+        <div class="field" id="fld-mail">
+          <input id="f-mail" name="email" type="email" placeholder=" " autocomplete="email" required>
+          <label for="f-mail">Email</label>
+          <p class="err">That email doesn't look right.</p>
+        </div>
+        <div class="field" id="fld-msg">
+          <textarea id="f-msg" name="message" placeholder=" " required rows="4"></textarea>
+          <label for="f-msg">About the project</label>
+          <p class="err">A line or two about the project, please.</p>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-solid btn-lg" type="submit" id="sendBtn" data-magnet>
+            <span class="lbl">Send message</span>
+            <svg class="arw" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg>
+          </button>
+          <button class="btn btn-wa btn-lg" type="button" id="waBtn" data-magnet>
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.2-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.2 5.1 4.4 1.9.8 2.6.9 3.5.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1112 20.2z"/></svg>
+            <span class="lbl">WhatsApp</span>
+          </button>
+        </div>
+        <p class="form-note" id="formNote" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+  <div class="endcard" aria-hidden="true">
+    <div class="wrap">
+      <p class="endcard-mark">INFINITY</p>
+      <p class="endcard-sub">Media Production Studio, <span id="endLoc">Hurghada, Red Sea, Egypt</span></p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <a class="brand" href="#top" aria-label="Infinity, home">
+      <img src="assets/img/logo.webp" alt="" width="26" height="26" decoding="async"><span>INFINITY</span>
+    </a>
+    <nav class="foot-nav" aria-label="Footer">
+      <a href="#reel">Reel</a><a href="#work">Work</a>
+      <a href="#studio">Studio</a><a href="#contact">Contact</a>
+    </nav>
+    <nav class="foot-social" id="socialNav" aria-label="Social">
+      <a class="ul" href="https://www.instagram.com/infinity.media.production" target="_blank" rel="noopener">Instagram</a>
+      <a class="ul" href="https://www.tiktok.com/@maro.omar86" target="_blank" rel="noopener">TikTok</a>
+    </nav>
+    <p class="foot-legal">© <span id="yr">2026</span> Infinity Media Production</p>
+    <p class="credit-line">
+      <button class="credit-toggle" id="creditToggle" type="button" aria-expanded="false" aria-controls="credit">Credits</button>
+      <span class="credit" id="credit" hidden>3D model <em>Canon AT-1 Retro Camera</em> by
+        <a href="https://sketchfab.com/AleixoAlonso" target="_blank" rel="noopener">AleixoAlonso</a>,
+        licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span>
+    </p>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Video player">
+  <button class="lb-close" id="lbClose" aria-label="Close" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="lb-in">
+    <div class="lb-frame" id="lbFrame"></div>
+    <div class="lb-bar"><div><b id="lbTitle"></b><span class="meta" id="lbMeta"></span></div></div>
+    <div class="lb-info" id="lbInfo" hidden></div>
+  </div>
+</div>
+<!-- Both deferred, so neither blocks parsing, and deferred scripts run in
+     document order - config is always populated before app reads it. -->
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/app.js" defer></script>
+</body>
+</html>

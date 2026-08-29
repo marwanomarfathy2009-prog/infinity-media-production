@@ -1,0 +1,5 @@
+# Kept in the project, never published.
+# Without this, Vercel would serve the 6.3 MB original at
+# /index.original.html.bak as a public, downloadable file.
+index.original.html.bak
+README.md
