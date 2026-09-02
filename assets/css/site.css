@@ -912,6 +912,11 @@ html{scrollbar-gutter:stable}
 /* the reel's tap affordance does not exist on desktop */
 .reel-play{display:none}
 
+/* Screen two exists only below 900px. Declared hidden here rather than
+   shown there, so it is never painted, never measured and never loads a
+   frame on desktop even for the moment before script runs. */
+#heroCam{display:none}
+
 @media (max-width:56.25rem){
 
   /* ---------- 1. screen one: type, and nothing else ----------
@@ -949,6 +954,46 @@ html{scrollbar-gutter:stable}
      camera, so the rule is answered here on equal specificity. */
   .static-hero .scroll-cue{display:flex}
   .scroll-cue{color:var(--fg-3)}
+
+  /* ---------- 2. screen two: the camera, scrubbed ------------
+     36 pre-rendered frames of the desktop scene drawn into one
+     canvas. drawImage swaps the picture without touching the DOM
+     or decoding anything, so frames do not flicker between each
+     other and the section is never mid-swap. */
+  #heroCam{
+    display:block;
+    position:relative;
+    height:100svh;
+    margin:0;
+    overflow:hidden;
+    /* The frames are opaque and carry their own ground at #fafafa. Anything
+       else here draws a visible hairline along the canvas edge - #fcfcfc
+       against #fafafa is only two levels apart and still reads as a seam -
+       so the section is set to the frames' own value and the join is exact. */
+    background:#fafafa;
+    isolation:isolate;
+  }
+  /* 60svh of width is 75svh of height at the frames' 4:5 ratio. On a
+     narrow phone that box is wider than the screen, so width is capped
+     at 122% instead - the widest the frame can be drawn while the
+     section still clips nothing but empty margin. Measured across all
+     36 frames the ink never leaves x 80..569 of 640, which leaves 71px
+     of blank frame on the tighter side; 122% clips 58px of it. */
+  #heroCamCanvas,
+  #heroCamStill{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:min(122%, 60svh);
+    /* the global img/video/canvas reset caps these at 100%, which is the
+       one thing this box must be allowed to exceed */
+    max-width:none;
+    aspect-ratio:640/800;
+    height:auto;
+    display:block;
+  }
+  #heroCamStill{object-fit:contain}
 
   /* ---------- 1c. the beats, as cards in normal flow --------- */
   .chapter{

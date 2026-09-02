@@ -8,6 +8,10 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* 56.25rem = 900px. One breakpoint object, referenced by every mobile guard,
    so the CSS media queries and the JS guards can never drift apart. */
 const MOBILE_MQ = matchMedia('(max-width:56.25rem)');
+/* the mobile hero camera's 36 frames - declared up here because the boot
+   curtain waits on the first of them, long before the module that scrubs them */
+const SEQ_N = 36;
+const SEQ_URL = i => `assets/img/hero-seq/f${String(i).padStart(3, '0')}.webp`;
 const DESKTOP_MQ = matchMedia('(min-width:56.3125rem)');
 const isMobile = () => MOBILE_MQ.matches;
 const SAVE_DATA_EARLY = !!(navigator.connection && navigator.connection.saveData);
@@ -895,6 +899,17 @@ const posterURL = () => `${narrowMQ.matches ? window.__HP_M__ : window.__HP__}`;
 /* the poster carries the hero until the live scene is ready, so a slow
    connection never sees a frozen or empty stage */
 function showPoster() {
+  /* On a phone the still is not on screen at all - #heroPoster is
+     display:none below 900px and the camera has its own screen underneath,
+     drawn from the frame sequence. So the curtain waits on the first frame
+     of that sequence, which is the picture the visitor actually reaches,
+     rather than on a poster nobody will see. Desktop is untouched. */
+  if (isMobile()) {
+    const probe = new Image();
+    probe.onload = probe.onerror = liftCurtain;
+    probe.src = SEQ_URL(0);
+    return;
+  }
   poster.classList.add('is-on');
   /* lift the loader the moment the still is actually decoded */
   const probe = new Image();
@@ -1028,9 +1043,142 @@ function watchChapters() {
 function syncHeroMode() {
   clearHeroInline();
   placeChapters();
-  if (isMobile()) watchChapters();
+  if (isMobile()) { watchChapters(); startHeroCam(); }
   heroCopyTick();
 }
+
+/* ══════════════════════════════════════════════════════ hero camera
+   Screen two on a phone: the desktop WebGL scene, pre-rendered to 36 frames
+   and scrubbed against this section's own scroll. 501 KB and one drawImage
+   per frame, against 2.2 MB of Three.js and a GPU the phone would rather
+   keep for the scroll itself.
+
+   Two rules hold the whole thing up. Nothing is ever decoded inside the
+   scroll handler - the handler only picks a bitmap that is already decoded
+   and blits it - and the canvas is never cleared, so a frame that has not
+   arrived yet leaves the last one standing rather than a hole.            */
+const camSection = $('#heroCam'), camCanvas = $('#heroCamCanvas');
+const camStill = $('#heroCamStill');
+let camStarted = false;
+
+function startHeroCam() {
+  if (camStarted || !isMobile() || !camSection || !camCanvas) return;
+  camStarted = true;
+
+  const ctx = camCanvas.getContext('2d', { alpha: false });
+  if (!ctx) return camFallback();
+
+  /* index -> ImageBitmap (or HTMLImageElement on the no-createImageBitmap
+     path). Sparse on purpose: a hole means "not decoded yet", and the
+     scrubber reads it as "hold what is already on screen". */
+  const frames = new Array(SEQ_N);
+  let drawn = -1;
+
+  const paint = i => {
+    if (i === drawn || !frames[i]) return;
+    /* the frames are opaque, so one blit fully replaces the last picture -
+       no clearRect, which is what would show a flash of empty canvas */
+    ctx.drawImage(frames[i], 0, 0, camCanvas.width, camCanvas.height);
+    drawn = i;
+  };
+
+  /* the nearest frame at or below the one we want that is actually decoded.
+     Loading runs in order, so this is normally the newest arrival. */
+  const paintNearest = want => {
+    for (let i = want; i >= 0; i--) if (frames[i]) return paint(i);
+  };
+
+  const decode = url => {
+    if (typeof createImageBitmap === 'function') {
+      return fetch(url, { credentials: 'omit' })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+        .then(createImageBitmap);
+    }
+    /* older Safari: an <img> that has finished decoding is just as good a
+       drawImage source, it only costs a little more memory */
+    return new Promise((res, rej) => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = rej;
+      im.src = url;
+    });
+  };
+
+  /* ---- 1. the first frame, straight away -------------------------------
+     It is preloaded in the document head at this breakpoint, so this is a
+     cache read. The section has a picture in it before anything else runs
+     and is never empty at any point. */
+  const first = RM ? SEQ_N - 1 : 0;
+  decode(SEQ_URL(first)).then(bmp => {
+    frames[first] = bmp;
+    paint(first);
+  }).catch(camFallback);
+
+  /* Under reduced motion the sequence is the animation, so there is no
+     sequence: one still, the camera assembled and facing front, and the
+     other 35 frames are never requested. */
+  if (RM) return;
+
+  /* ---- 2. the rest, in order, once the hero is nearly gone -------------
+     #heroCam follows #heroScroll immediately and both are one viewport
+     tall, so "this section is within one viewport of entering" is the same
+     moment as "the hero is within one viewport of leaving". */
+  let queued = false;
+  function queueRest() {
+    if (queued) return;
+    queued = true;
+    const load = i => {
+      if (i >= SEQ_N) return;
+      if (i === first) return load(i + 1);
+      decode(SEQ_URL(i))
+        .then(bmp => { frames[i] = bmp; scrubQueue(); load(i + 1); })
+        /* one bad frame is a gap the scrubber already knows how to hold
+           through - it must not stop the other 34 */
+        .catch(() => load(i + 1));
+    };
+    load(0);
+  }
+  const armRest = whenSeen(queueRest, camSection, innerHeight);
+  if (HAS_IO) {
+    new IntersectionObserver((es, obs) => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      armRest();
+    }), { rootMargin: '100% 0px' }).observe(camSection);
+  }
+
+  /* ---- 3. the scrub ----------------------------------------------------
+     0 as the section's top reaches the bottom of the viewport, 1 as its
+     bottom leaves the top. One rAF-throttled listener, one custom-property
+     -free path: pick an index, blit an already-decoded bitmap, done. */
+  let scrubQueued = false;
+  function scrubTick() {
+    scrubQueued = false;
+    if (!isMobile()) return;
+    const r = camSection.getBoundingClientRect();
+    const span = innerHeight + r.height;
+    if (span <= 0) return;
+    const p = clamp((innerHeight - r.top) / span, 0, 1);
+    paintNearest(clamp(Math.round(p * (SEQ_N - 1)), 0, SEQ_N - 1));
+  }
+  function scrubQueue() { if (!scrubQueued) { scrubQueued = true; raf(scrubTick); } }
+  addEventListener('scroll', scrubQueue, { passive: true });
+  addEventListener('resize', scrubQueue);
+  scrubQueue();
+}
+
+/* The section must never be empty. If the sequence cannot be drawn at all -
+   no 2d context, or the very first frame failed - the mobile poster takes
+   its place as a plain still. */
+function camFallback() {
+  if (!camStill || camStill.getAttribute('src')) return;
+  camStill.src = window.__HP_M__;
+  camStill.hidden = false;
+  if (camCanvas) camCanvas.hidden = true;
+}
+
+/* Last, because it is what starts the two mobile screens - and startHeroCam
+   reads elements declared just above. */
 onMQ(MOBILE_MQ, syncHeroMode);
 syncHeroMode();
 })();

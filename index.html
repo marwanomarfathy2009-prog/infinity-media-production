@@ -47,7 +47,7 @@
      layout, never both. -->
 <link rel="preload" as="image" href="assets/img/hero-poster.webp"
       media="(min-width:56.3125rem)" fetchpriority="high">
-<link rel="preload" as="image" href="assets/img/hero-poster-mobile.webp"
+<link rel="preload" as="image" href="assets/img/hero-seq/f000.webp"
       media="(max-width:56.25rem)" fetchpriority="high">
 
 <link rel="stylesheet" href="assets/css/site.css">
@@ -235,6 +235,23 @@
     <div class="scroll-cue" id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
     <div class="hero-progress"><i id="prog"></i></div>
   </div>
+</section>
+
+<!-- ══ HERO CAMERA (mobile only) ══
+     One screen for the object the brand is named after. The 36 frames are a
+     pre-rendered capture of the desktop WebGL scene, scrubbed on scroll, so a
+     phone gets the same beat - apart, then rebuilt - for 501 KB instead of
+     2.2 MB and no GPU work at all.
+
+     display:none above 900px. Desktop never paints it, never loads a frame,
+     and its own DOM order and layout are exactly what they were. -->
+<section id="heroCam">
+  <canvas id="heroCamCanvas" width="640" height="800" role="img"
+          aria-label="A Canon AT-1 film camera, taken apart and rebuilt"></canvas>
+  <!-- No src until it is needed. An <img> inside a display:none section is
+       still fetched, and the sequence almost never fails - so the fallback
+       stays a zero-byte element until script hands it one. -->
+  <img id="heroCamStill" alt="" hidden decoding="async">
 </section>
 
 <!-- ══ REEL ══ -->
