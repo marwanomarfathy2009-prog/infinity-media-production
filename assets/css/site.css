@@ -994,6 +994,17 @@ html{scrollbar-gutter:stable}
     display:block;
   }
   #heroCamStill{object-fit:contain}
+  /* anchored to the bottom of the screen, under the camera's empty lower
+     third - the frames' ink never reaches below 77% of the frame, so this
+     never crowds it */
+  .hero-cam-cta{
+    position:absolute;
+    left:50%;
+    bottom:calc(var(--s4) + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    z-index:2;
+    white-space:nowrap;
+  }
 
   /* ---------- 1c. the beats, as cards in normal flow --------- */
   .chapter{
