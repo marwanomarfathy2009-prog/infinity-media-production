@@ -926,7 +926,15 @@ html{scrollbar-gutter:stable}
      --cam is written by one rAF-throttled scroll listener and
      is hard-capped at 1.10 in script. */
   #heroPoster{
-    top:33.333%;
+    /* The bottom two thirds - but never higher than the copy actually
+       reaches. --cam-top is the ceiling script measured for this viewport:
+       the highest the box may start and still leave the camera clear of the
+       copy at the last scroll position where the copy is on screen. On a
+       375x812 or 414x896 screen the drawn height is limited by the 4% side
+       inset long before that ceiling bites, so this is a no-op there. On a
+       short screen - 360x640, where the copy alone is 484px - it is the
+       difference between a clean hero and a camera behind the button. */
+    top:max(33.333%, var(--cam-top, 33.333%));
     /* A 4% inset each side. contain is width-limited in this box, so the
        inset is what sets the drawn height - and the drawn height is what
        decides whether the top of the camera can reach the CTA once --cam is
