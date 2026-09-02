@@ -971,7 +971,6 @@ html{scrollbar-gutter:stable}
        against #fafafa is only two levels apart and still reads as a seam -
        so the section is set to the frames' own value and the join is exact. */
     background:#fafafa;
-    isolation:isolate;
   }
   /* 60svh of width is 75svh of height at the frames' 4:5 ratio. On a
      narrow phone that box is wider than the screen, so width is capped
@@ -993,7 +992,17 @@ html{scrollbar-gutter:stable}
     height:auto;
     display:block;
   }
-  #heroCamStill{object-fit:contain}
+  /* The poster is a cut-out with a transparent ground, so it carries the
+     ground with it - an alpha image must never be left to composite onto
+     whatever happens to be behind it. It also keeps its own proportions
+     rather than the frames' 4:5, and stays inside the screen. */
+  #heroCamStill{
+    aspect-ratio:auto;
+    width:min(100%, 60svh);
+    height:auto;
+    object-fit:contain;
+    background:#fafafa;
+  }
   /* anchored to the bottom of the screen, under the camera's empty lower
      third - the frames' ink never reaches below 77% of the frame, so this
      never crowds it */
