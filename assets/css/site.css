@@ -914,68 +914,41 @@ html{scrollbar-gutter:stable}
 
 @media (max-width:56.25rem){
 
-  /* ---------- 1. the hero is one screen ---------------------- */
+  /* ---------- 1. screen one: type, and nothing else ----------
+     The camera used to fight the copy for this screen and lost:
+     240px of it, washed out, wedged into a bottom corner. It has
+     its own screen now (#heroCam, below), so screen one is a
+     single viewport of type with the space to be read. */
   .hero{height:100svh}
   #heroSticky{position:static;height:100svh;min-height:0}
   #gl{display:none}
-  .hero-progress,.scroll-cue{display:none}
+  #heroPoster{display:none}
+  .hero-progress{display:none}
+  /* The vignette exists to sink the WebGL camera into the ground -
+     a white wash over the top 18% and the bottom 12%. With no
+     camera on this screen it has nothing left to blend, and its
+     bottom fade is exactly what was washing out the old one. */
+  .hero-vignette{display:none}
 
-  /* ---------- 1b. the camera, growing from its own base ------
-     transform-origin is the bottom edge, so growth pushes the
-     body down and out of frame instead of up into the headline.
-     --cam is written by one rAF-throttled scroll listener and
-     is hard-capped at 1.10 in script. */
-  #heroPoster{
-    /* The bottom two thirds - but never higher than the copy actually
-       reaches. --cam-top is the ceiling script measured for this viewport:
-       the highest the box may start and still leave the camera clear of the
-       copy at the last scroll position where the copy is on screen. On a
-       375x812 or 414x896 screen the drawn height is limited by the 4% side
-       inset long before that ceiling bites, so this is a no-op there. On a
-       short screen - 360x640, where the copy alone is 484px - it is the
-       difference between a clean hero and a camera behind the button. */
-    top:max(33.333%, var(--cam-top, 33.333%));
-    /* A 4% inset each side. contain is width-limited in this box, so the
-       inset is what sets the drawn height - and the drawn height is what
-       decides whether the top of the camera can reach the CTA once --cam is
-       near its ceiling. Measured: without it the camera crosses the button's
-       lower edge by up to 16px between 300 and 440px of scroll. */
-    left:4%;
-    right:4%;
-    opacity:1;
-    background-image:url(../img/hero-poster-mobile.webp);
-    background-size:contain;
-    background-position:center bottom;
-    background-repeat:no-repeat;
-    transform:scale(var(--cam,.82));
-    transform-origin:50% 100%;
-    transition:none;
-    will-change:transform;
-  }
-
-  /* The soft strip that guarantees the two layers never meet. It hangs off
-     the bottom of the copy block rather than sitting at a fixed height, so it
-     travels with the text: whatever the camera is scaled to, the last thing
-     under the copy is always background fading to nothing. 6rem covers the
-     worst case, which is 67px of reach at the 1.10 ceiling. */
-  .hero-copy::after{
-    content:"";position:absolute;left:0;right:0;top:100%;height:6rem;
-    background:linear-gradient(180deg,var(--tone-1) 0%,rgba(255,255,255,.88) 34%,rgba(255,255,255,0) 100%);
-    pointer-events:none;
-  }
-
-  /* ---------- copy pinned to the top, never animated away ---- */
+  /* ---------- the copy, centred in its own screen ------------ */
   .hero-copy{
-    inset:0 0 auto 0;
+    inset:0;
     height:auto;
-    justify-content:flex-start;
-    padding-top:calc(var(--nav-h) + 3svh);
-    padding-bottom:1rem;
+    justify-content:center;
+    padding-top:var(--nav-h);
+    padding-bottom:5.5rem;          /* the cue's lane */
     opacity:1;
     transform:none;
     z-index:3;
   }
-  .hero-copy .lede{margin-bottom:1.9rem}
+  .hero-copy .lede{margin-bottom:2.1rem}
+
+  /* ---------- the cue: there is a second screen to reach ----- */
+  /* .static-hero hides this because a hero with nothing to scrub
+     has nothing to point at. On a phone it now points at the
+     camera, so the rule is answered here on equal specificity. */
+  .static-hero .scroll-cue{display:flex}
+  .scroll-cue{color:var(--fg-3)}
 
   /* ---------- 1c. the beats, as cards in normal flow --------- */
   .chapter{
@@ -1057,11 +1030,19 @@ html{scrollbar-gutter:stable}
   .reel-stage.is-playing .reel-sound{display:grid}
 
   /* ---------- 4. type and spacing ---------------------------- */
+  /* 0.93 overlapped its own lines; 1.05 is the floor. */
   .display{line-height:1.05}
   .eyebrow{font-size:12px}
+  /* The hero headline was stuck on the 2.6rem floor of the shared
+     clamp - 41.6px on every phone, because 7vw never reaches it
+     below 900px. Screen one is type alone now, so it gets a scale
+     of its own: 13.5vw, between 3rem and 4.4rem. Scoped to the
+     hero, so the contact display and every other .display keep
+     the shared scale. */
+  .hero-copy .display{font-size:clamp(3rem,13.5vw,4.4rem)}
   /* two stacked full-width buttons of equal weight flatten the
-     hierarchy, and the second one is what the camera reaches
-     first. The reel gets a whole screen a moment later. */
+     hierarchy, and the second one belongs on the camera screen -
+     one beat before the reel it points at. */
   .hero-actions .btn-line{display:none}
   .map{aspect-ratio:4/3;margin-top:var(--s3)}
   /* nothing signalled that these rows opened, so nobody opened them */
@@ -1081,6 +1062,5 @@ html{scrollbar-gutter:stable}
    desktop hero has its own reduced-motion handling further up and nothing
    here may reach it. */
 @media (max-width:56.25rem) and (prefers-reduced-motion: reduce){
-  #heroPoster{transform:scale(1)!important}
   .chapter{opacity:1!important;transform:none!important;transition:none!important}
 }

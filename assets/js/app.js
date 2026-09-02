@@ -992,51 +992,6 @@ addEventListener('resize', heroCopyTick);
    phone gets a different thing entirely: one screen, a still camera, and the
    two chapter beats promoted to real cards below it.                        */
 
-/* ---- 1b. the camera grows on scroll -------------------------------------
-   One custom property, written from a rAF-throttled scroll listener and
-   consumed by a single transform. No layout-triggering property is touched,
-   and the ceiling is enforced twice - once by clamping progress and once by
-   clamping the result - because an uncapped scale eventually eats the copy. */
-const CAM_MIN = 0.82, CAM_MAX = 1.10;
-let camQueued = false;
-function camTick() {
-  camQueued = false;
-  if (!isMobile()) return;
-  if (RM) { heroScroll.style.setProperty('--cam', '1'); return; }
-  const span = heroSticky.offsetHeight || innerHeight;
-  const p = clamp(scrollY / span, 0, 1);
-  const s = clamp(CAM_MIN + (CAM_MAX - CAM_MIN) * p, CAM_MIN, CAM_MAX);
-  heroScroll.style.setProperty('--cam', s.toFixed(4));
-}
-addEventListener('scroll', () => { if (!camQueued) { camQueued = true; raf(camTick); } }, { passive: true });
-
-/* ---- 1b (ii). how much room the camera is actually allowed ---------------
-   The cap on --cam stops the camera growing without limit, but it does not
-   say where the growth starts from, and `top:33.333%` assumes the copy fits
-   in the top third. On a 375x812 screen it does. On a 360x640 one the copy is
-   484px - three quarters of the screen - and a box starting at 213px puts the
-   camera 84px up behind the primary button before a finger has moved.
-
-   So the box gets a measured ceiling instead of an assumed one. The only
-   moment a collision can be seen is the last scroll position at which the
-   copy is still on screen, which is when the copy's own bottom edge reaches
-   the top of the viewport; the scale at that instant is what the camera has
-   to clear. Everything past it is off screen, and text that is not on screen
-   cannot be covered.
-
-   The value is a ceiling, not a position - CSS takes max() of it and 33.333%
-   - so on a viewport with room to spare the drawn height is still decided by
-   the 4% side inset and nothing moves. */
-function fitCamera() {
-  if (!isMobile() || !heroPoster || !heroCopy || !heroScroll) return;
-  const span = heroSticky.offsetHeight || innerHeight;
-  const copyBot = heroCopy.offsetTop + heroCopy.offsetHeight;
-  if (!span || copyBot >= span) return;
-  const camThen = clamp(CAM_MIN + (CAM_MAX - CAM_MIN) * (copyBot / span), CAM_MIN, CAM_MAX);
-  const room = (span - copyBot) / camThen;      /* tallest the drawn image may be */
-  heroScroll.style.setProperty('--cam-top', (span - room).toFixed(1) + 'px');
-}
-
 /* ---- 1c. the two beats become cards in normal flow ----------------------
    On desktop they are absolutely positioned inside the sticky viewport; on a
    phone they are full-screen cards after it. That is a real DOM move, and it
@@ -1073,18 +1028,9 @@ function watchChapters() {
 function syncHeroMode() {
   clearHeroInline();
   placeChapters();
-  if (isMobile()) { watchChapters(); fitCamera(); camTick(); }
-  else { heroScroll.style.removeProperty('--cam'); heroScroll.style.removeProperty('--cam-top'); }
+  if (isMobile()) watchChapters();
   heroCopyTick();
 }
 onMQ(MOBILE_MQ, syncHeroMode);
-/* the copy re-wraps when the viewport changes, so the ceiling is re-measured
-   with it - on mobile only, and after layout has settled */
-addEventListener('resize', () => { if (isMobile()) { fitCamera(); camTick(); } });
 syncHeroMode();
-/* Fonts land after first layout and change how many lines the headline and
-   lede take, which moves the copy's bottom edge. Re-measure once they have. */
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => { if (isMobile()) { fitCamera(); camTick(); } }).catch(() => {});
-}
 })();
