@@ -543,7 +543,10 @@ $$('.sec-head,.studio-top,.svc,.contact-head,.contact-grid,.reel-copy,.stats,.fi
 $$('h1,h2,.display').forEach(h => { if (h.querySelector('.ln') && io) io.observe(h); });
 
 /* the safety net: if the observer never answered, nothing stays hidden */
+let released = false;
 function releaseEverything() {
+  if (released) return;                      /* one sweep, one set of listeners */
+  released = true;
   document.documentElement.classList.add('io-fallback');
   /* content first, and all of it - nothing stays invisible */
   $$('.reveal,.ln,.chapter').forEach(el => el.classList.add('is-in'));
@@ -568,10 +571,39 @@ function releaseEverything() {
   addEventListener('resize', onScroll);
   sweep();
 }
+/* The verdict is only meaningful while the document is actually being
+   rendered. IntersectionObserver callbacks - like requestAnimationFrame - are
+   delivered as part of the rendering steps, and a document that is not
+   rendered never runs them. A page opened into a background tab is therefore
+   indistinguishable, to the old check, from a page whose observer is broken:
+   the 1200ms timer still fired, ioAlive was still false, and the whole site
+   latched into the fallback for the rest of the session. That is routine on a
+   phone, where a link is opened behind whatever the visitor is already doing,
+   and it is why io-fallback was engaging there.
+
+   So the question is only asked while the page is visible, and asked again on
+   the next visibilitychange instead of being answered once and latched. A
+   genuinely inert observer still reaches releaseEverything, one second and a
+   bit after the page is first actually on screen - which is the only moment
+   the answer means anything. */
+let ioVerdictArmed = false;
+function judgeIO() {
+  if (ioAlive || released || ioVerdictArmed) return;
+  if (document.visibilityState !== 'visible') return;   /* ask again when it is */
+  ioVerdictArmed = true;
+  setTimeout(() => {
+    ioVerdictArmed = false;
+    if (ioAlive || released) return;
+    if (document.visibilityState !== 'visible') return; /* hidden again mid-count */
+    console.warn('[infinity] IntersectionObserver inert - revealing all content');
+    releaseEverything();
+  }, 1200);
+}
 if (!HAS_IO) releaseEverything();
-else addEventListener('load', () => setTimeout(() => {
-  if (!ioAlive) { console.warn('[infinity] IntersectionObserver inert - revealing all content'); releaseEverything(); }
-}, 1200));
+else {
+  addEventListener('load', judgeIO);
+  document.addEventListener('visibilitychange', judgeIO);
+}
 
 /* ══════════════════════════════════════════════════════ showreel */
 const reelVid = $('#reelVid'), reelStage = $('#reelStage');
