@@ -358,15 +358,17 @@ if ((S.stats || []).length) $('#statsRow').innerHTML = S.stats
    yet is simply not rendered - no placeholder text, no invented metadata.
    A piece becomes real by adding `poster` and `video` to it in config.js;
    nothing in this section needs redesigning when that happens.            */
-const art = (a, b) =>
-  `background:radial-gradient(115% 95% at 28% 8%,${a || '#6d5bd0'}b3,transparent 66%),linear-gradient(158deg,${b || '#141020'},#101015)`;
-
-/* the still that fronts a piece: a real frame if there is one, the tonal
-   holding art if there is not. Fixed aspect either way, so nothing shifts. */
+/* the still that fronts a piece: a real frame if there is one, the neutral
+   holding art if there is not. The holding art carries no colour and no
+   invented imagery - it is a plain graphite slate defined in site.css, so an
+   empty slot reads as "still to come", not as decoration.
+   Fixed aspect either way, so nothing shifts. */
 const cardMedia = (item, cls, alt) => item.poster
   ? `<img class="${cls}-img" src="${esc(item.poster)}" alt="${esc(alt || '')}"
-        loading="lazy" decoding="async">`
-  : `<span class="${cls}-art" style="${art(item.c1, item.c2)}"></span>`;
+        loading="lazy" decoding="async">` +
+    (item.loop ? `<video class="card-loop" data-loop="${esc(item.loop)}"
+        muted loop playsinline preload="none" tabindex="-1" aria-hidden="true"></video>` : '')
+  : `<span class="${cls}-art" aria-hidden="true"></span>`;
 
 /* "Commercial · 2026 · Nova" - built only from the parts that exist */
 const metaLine = item => [item.category || item.kind, item.year, item.client]
@@ -414,41 +416,69 @@ const WORK_EMPTY = `
   </div>
 </div>`;
 
-const filmsRow = $('#filmsRow');
-if (FILMS.length) {
-  filmsRow.innerHTML = FILMS.map(filmCard).join('');
-} else {
-  filmsRow.classList.remove('films');
-  filmsRow.innerHTML = WORK_EMPTY;
-}
-
-/* the shorts rail and its heading travel together - an empty rail under a
-   live heading is the placeholder problem in a different shape */
+/* the vertical grid leads the section, so it owns the section heading. An
+   empty grid under a live heading is the placeholder problem in a different
+   shape, so the two travel together. */
 if (SHORTS.length) {
   $('#shortsRow').innerHTML = SHORTS.map(shortCard).join('');
 } else {
   ['#shortsHead', '#shortsWrap'].forEach(sel => { const el = $(sel); if (el) el.hidden = true; });
 }
 
+/* Films sits below as the full-frame cut. Its heading travels with it the
+   same way, and the fallback copy only stands in when the whole section
+   would otherwise be empty. */
+const filmsRow = $('#filmsRow');
+if (FILMS.length) {
+  filmsRow.innerHTML = FILMS.map(filmCard).join('');
+} else if (SHORTS.length) {
+  filmsRow.hidden = true;
+  const fh = $('#filmsHead'); if (fh) fh.hidden = true;
+} else {
+  filmsRow.classList.remove('films');
+  filmsRow.innerHTML = WORK_EMPTY;
+}
 
 
+
+/* ── hover previews ──────────────────────────────────────────────────────
+   A card with a `loop` gets a silent three-second cut that fades in while a
+   cursor rests on it and fades back to the still on the way out. The file is
+   never requested until the first hover, so a visitor who never hovers pays
+   nothing for this.
+
+   Pointer-driven only, and deliberately so: nine autoplaying videos is the
+   kind of thing that kills a phone, and `hover:hover` keeps touch devices out
+   of it entirely. Reduced-motion and save-data opt out as well. */
+if (!RM && matchMedia('(hover:hover) and (pointer:fine)').matches &&
+    !(navigator.connection && navigator.connection.saveData)) {
+  $$('.card-loop').forEach(v => {
+    const card = v.closest('.film, .short');
+    if (!card) return;
+    let armed = false;
+    const start = () => {
+      if (!armed) { v.src = v.dataset.loop; armed = true; }
+      const p = v.play();
+      if (p) p.then(() => card.classList.add('is-previewing')).catch(() => {});
+    };
+    const stop = () => { card.classList.remove('is-previewing'); v.pause(); };
+    card.addEventListener('pointerenter', start);
+    card.addEventListener('pointerleave', stop);
+    card.addEventListener('focus', start);
+    card.addEventListener('blur', stop);
+  });
+}
+
+/* The rail arrows are gone. On a phone the rail is swiped, and from 901px up
+   it is a grid with nothing to scroll, so a pair of arrows had no job left.
+   This block stays generic in case another rail wants them back. */
 $$('[data-rail]').forEach(btn => btn.addEventListener('click', () => {
   const rail = document.getElementById(btn.dataset.rail);
+  if (!rail) return;
   const card = rail.firstElementChild;
   const step = card ? card.getBoundingClientRect().width + 24 : 400;
   rail.scrollBy({ left: step * Number(btn.dataset.dir), behavior: RM ? 'auto' : 'smooth' });
 }));
-(function syncRail(id) {
-  const rail = document.getElementById(id);
-  const [prev, next] = $$(`[data-rail="${id}"]`);
-  if (!rail || !prev) return;
-  const upd = () => {
-    prev.disabled = rail.scrollLeft < 8;
-    next.disabled = rail.scrollLeft >= rail.scrollWidth - rail.clientWidth - 8;
-  };
-  rail.addEventListener('scroll', upd, { passive: true });
-  addEventListener('resize', upd); upd();
-})('shortsRow');
 
 /* ══════════════════════════════════════════════════════ lightbox */
 const lb = $('#lb'), lbFrame = $('#lbFrame'), lbTitle = $('#lbTitle'),
@@ -475,7 +505,7 @@ function openLB(kind, i) {
     lbFrame.innerHTML = `<img src="${esc(item.poster)}" alt="${esc(item.title)}" decoding="async">`;
   } else {
     lbFrame.innerHTML =
-      `<div class="lb-soon" style="${art(item.c1, item.c2)}">
+      `<div class="lb-soon">
          <div><p class="eyebrow">${kind === 'short' ? 'Short' : 'Film'}</p>
          <b>${esc(item.title)}</b>
          <p>This piece isn't online yet. Ask us for the file and we'll send it over.</p></div>

@@ -48,13 +48,17 @@ window.SITE = {
        role        "Direction, camera, post"
        dur         "3:12" - the chip on the still
        description one or two sentences shown in the player
-       poster      "assets/img/work/nova.webp"  - the still on the card
-       video       "assets/video/nova.mp4"      - plays in the player
-       c1 / c2     the two tones used as holding art until `poster` exists
+       poster      "assets/img/work/nova.webp"       - the still on the card
+       video       "assets/video/work/nova.mp4"      - plays in the player
+       loop        "assets/video/loop/nova.mp4"      - the silent 3s preview
+                   that fades in when a cursor rests on the card. Optional,
+                   desktop only, and skipped entirely for reduced-motion.
+       c1 / c2     no longer used - a slot with no poster shows one neutral
+                   graphite slate defined in site.css, not per-slot colours
 
      HOW THE SLOTS FILL IN
      Every entry below is drawn on the site, in order, right now. A slot with
-     no `poster` shows the c1/c2 holding art in exactly the box a real still
+     no `poster` shows the graphite holding art in exactly the box a real still
      will occupy - so adding `poster` and `video` swaps the image in without
      moving anything on the page. There is no flag to switch and no layout to
      change; you only fill fields in.
@@ -63,23 +67,56 @@ window.SITE = {
      yet rather than failing. That message disappears on its own once `video`
      is set.
 
-     Keep the placeholder titles until you have the real ones. Do not add
-     invented view counts, years, clients or awards. */
+     The titles and categories below are descriptive placeholders written
+     from what is visible in each clip. They are not client names. Replace
+     them with the real piece names, and add `client` and `year` only once
+     the client has confirmed them. Do not add invented view counts, years,
+     clients or awards. */
 
   shorts: [
-    { title:"Vertical slot 1", category:"Short", c1:"#6d5bd0", c2:"#171326", poster:null, video:null },
-    { title:"Vertical slot 2", category:"Short", c1:"#c8763a", c2:"#241408", poster:null, video:null },
-    { title:"Vertical slot 3", category:"Short", c1:"#c4452f", c2:"#24100b", poster:null, video:null },
-    { title:"Vertical slot 4", category:"Short", c1:"#8e4b6b", c2:"#1e0e15", poster:null, video:null },
-    { title:"Vertical slot 5", category:"Short", c1:"#5b6470", c2:"#14181d", poster:null, video:null },
-    { title:"Vertical slot 6", category:"Short", c1:"#2f8f6b", c2:"#0b1c16", poster:null, video:null }
+    { title:"Club night", category:"Nightlife", dur:"0:20",
+      poster:"assets/img/work/club-night.webp",
+      loop:"assets/video/loop/club-night.mp4",
+      video:"assets/video/work/club-night.mp4" },
+    { title:"Beach club", category:"Hospitality", dur:"0:17",
+      poster:"assets/img/work/pool-day.webp",
+      loop:"assets/video/loop/pool-day.mp4",
+      video:"assets/video/work/pool-day.mp4" },
+    { title:"Pool session", category:"Event", dur:"0:20",
+      poster:"assets/img/work/pool-dj.webp",
+      loop:"assets/video/loop/pool-dj.mp4",
+      video:"assets/video/work/pool-dj.mp4" },
+    { title:"DJ set", category:"Nightlife", dur:"0:20",
+      poster:"assets/img/work/bottle-service.webp",
+      loop:"assets/video/loop/bottle-service.mp4",
+      video:"assets/video/work/bottle-service.mp4" },
+    { title:"Club and lounge", category:"Nightlife", dur:"0:20",
+      poster:"assets/img/work/club-crowd.webp",
+      loop:"assets/video/loop/club-crowd.mp4",
+      video:"assets/video/work/club-crowd.mp4" },
+    { title:"Stage show", category:"Event", dur:"0:20",
+      poster:"assets/img/work/club-red.webp",
+      loop:"assets/video/loop/club-red.mp4",
+      video:"assets/video/work/club-red.mp4" },
+    { title:"Late night", category:"Nightlife", dur:"0:20",
+      poster:"assets/img/work/night-show.webp",
+      loop:"assets/video/loop/night-show.mp4",
+      video:"assets/video/work/night-show.mp4" },
+    { title:"Kitchen", category:"Food and drink", dur:"0:17",
+      poster:"assets/img/work/food.webp",
+      loop:"assets/video/loop/food.mp4",
+      video:"assets/video/work/food.mp4" },
+    { title:"Neon", category:"Venue", dur:"0:18",
+      poster:"assets/img/work/venue.webp",
+      loop:"assets/video/loop/venue.mp4",
+      video:"assets/video/work/venue.mp4" }
   ],
 
   films: [
-    { title:"Film slot 1", category:"Brand film",  c1:"#6d5bd0", c2:"#141020", poster:null, video:null },
-    { title:"Film slot 2", category:"Documentary", c1:"#c8763a", c2:"#1d1109", poster:null, video:null },
-    { title:"Film slot 3", category:"Campaign",    c1:"#2f7d92", c2:"#0b1a20", poster:null, video:null },
-    { title:"Film slot 4", category:"Short film",  c1:"#8e4b6b", c2:"#1c0d14", poster:null, video:null }
+    { title:"Fire show", category:"Event", dur:"0:20",
+      poster:"assets/img/work/beach-night.webp",
+      loop:"assets/video/loop/beach-night.mp4",
+      video:"assets/video/work/beach-night.mp4" }
   ],
 
   /* ---- STUDIO STATS ---- */
