@@ -616,6 +616,42 @@ footer{background:var(--bg);color:var(--fg);border-top:1px solid var(--line-2);
 .map iframe{width:100%;height:100%;border:0;
   filter:grayscale(1) contrast(1.02) brightness(1.02);opacity:.85}
 
+/* ---------- hover previews ----------
+   The silent loop sits exactly over the still and cross-fades in. It is only
+   ever loaded on a pointer device (see app.js), so this costs touch users
+   nothing. object-fit keeps it in the same box as the still it replaces. */
+.card-loop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity .45s var(--e-out);pointer-events:none;z-index:1}
+.is-previewing .card-loop{opacity:1}
+.is-previewing .film-img,.is-previewing .short-img{opacity:.001}
+@media (prefers-reduced-motion:reduce){.card-loop{display:none}}
+
+/* ---------- vertical work grid ----------
+   The shorts rail stays a swipe rail on phones, where a sideways rail is the
+   right gesture and nine autoloading cards would not be. From 901px up it
+   becomes a three-across grid so the whole body of work is visible at once
+   instead of hiding behind a scroll. */
+@media (min-width:901px){
+  .rail-grid{display:grid;grid-template-columns:repeat(3,1fr);
+    gap:var(--s4) var(--s3);overflow:visible;padding-bottom:0;scroll-snap-type:none}
+  .rail-grid .short{flex:none;width:auto}
+  /* one featured wide piece reads better centred than hung at 68% left */
+  .films:has(> .film:only-child) .film{width:min(100%,82%);margin-inline:auto}
+}
+
+/* Holding art for a work slot that has no still yet. Deliberately colourless:
+   one graphite panel with the site grain over it, so an empty slot reads as a
+   frame waiting for footage rather than as generated artwork. Adding `poster`
+   in config.js replaces it without moving anything. */
+.film-art,.short-art{
+  background-color:#17171b;
+  background-image:url("../img/grain.png"),
+    linear-gradient(180deg,#212126 0%,#161619 58%,#111114 100%);
+  background-repeat:repeat,no-repeat;
+  background-size:180px 180px,cover;
+  background-blend-mode:soft-light,normal}
+.lb-soon{background:linear-gradient(180deg,#1a1a1e,#0d0d10)}
+
 /* Card internals are <span>s inside <button>s — they need explicit boxes,
    otherwise the media collapses to zero height. */
 .film-media,.short-media,.short-cap,.film-art,.short-art,
