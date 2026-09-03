@@ -281,32 +281,29 @@
 
 <!-- ══ WORK ══ -->
 <section id="work" class="band" aria-labelledby="work-h">
-  <div class="wrap">
+  <div class="wrap" id="shortsHead">
     <div class="sec-head">
       <div>
         <p class="eyebrow">Selected work</p>
-        <h2 class="h1" id="work-h">Films.</h2>
+        <h2 class="h1" id="work-h">Work.</h2>
       </div>
-      <p class="lede">Brand films, documentaries and campaign work, where the story gets room to breathe.</p>
+      <p class="lede">Vertical pieces cut for the feed. Venues, nights and the rooms
+         they happen in, shot and finished in house.</p>
+    </div>
+  </div>
+  <!-- A swipe rail on phones, a three-across grid from 901px up. Same markup
+       either way; the switch lives in site.css. -->
+  <div class="wrap" id="shortsWrap"><div class="rail rail-grid" id="shortsRow"></div></div>
+
+  <div class="wrap" id="filmsHead">
+    <div class="sec-head sec-head-tight">
+      <div>
+        <p class="eyebrow">Full frame</p>
+        <h2 class="h2">Films.</h2>
+      </div>
     </div>
   </div>
   <div class="wrap"><div class="films" id="filmsRow"></div></div>
-
-  <div class="wrap" id="shortsHead">
-    <div class="sec-head sec-head-tight">
-      <div>
-        <p class="eyebrow">Vertical</p>
-        <h2 class="h2">Shorts.</h2>
-      </div>
-      <div class="rail-nav">
-        <button class="icon-btn" data-rail="shortsRow" data-dir="-1" aria-label="Previous shorts" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
-        <button class="icon-btn" data-rail="shortsRow" data-dir="1" aria-label="Next shorts" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      </div>
-    </div>
-  </div>
-  <div class="wrap" id="shortsWrap"><div class="rail" id="shortsRow"></div></div>
 </section>
 
 <!-- ══ STUDIO ══ -->
