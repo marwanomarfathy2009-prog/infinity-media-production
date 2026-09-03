@@ -1043,23 +1043,50 @@ html{scrollbar-gutter:stable}
     display:flex;align-items:flex-end;justify-content:flex-end;
     padding:0 20px calc(.25rem + env(safe-area-inset-bottom));
     font-family:Archivo,sans-serif;font-weight:800;font-size:28vw;line-height:.78;
-    letter-spacing:-.05em;color:rgba(255,255,255,.04);
+    letter-spacing:-.05em;color:rgba(255,255,255,.07);
     pointer-events:none;
   }
 
   /* 01 - the same camera, but read at the lens: a hard macro crop, so the
-     beat is a new frame rather than the hero photograph a second time */
+     beat is a new frame rather than the hero photograph a second time.
+     Type at the foot of the screen, scrim darkening downwards into it,
+     numeral held bottom right. 02 inverts every one of those. */
   #chapA::before{
-    background-size:320%;
-    background-position:44% 63%;
+    background-size:370%;
+    background-position:42% 63%;
     filter:grayscale(1) brightness(.45);
   }
   #chapA::after{content:"01"}
 
-  /* 02 - no photograph at all. The cut lands on type alone. */
-  #chapB{background:#0b0b0e}
-  #chapB::before{display:none}
-  #chapB::after{content:"02";background:none}
+  /* 02 - the other end of the same body: the left shoulder, where the
+     shutter dial and the AT-1 badge sit on the top plate. It used to be a
+     flat black field with type at the bottom, which read as 01 a second
+     time and left most of the screen carrying nothing at all.
+
+     01 frames x 31..58% / y 28..84% of the source, 02 frames x 3..30% /
+     y 13..69%: the two windows do not overlap at all, so they are
+     different pictures rather than the same one twice. Both crops are
+     above the 207% these boxes need to cover, and both were picked by
+     sweeping size and position for a window that lands no sample on the
+     poster's transparent ground at 360x780, 375x812 or 414x896 - which
+     is what stops either beat opening a bare patch under its own type.
+
+     Its composition is inverted against 01 on every axis - type at the
+     head of the screen instead of the foot, scrim darkening upwards
+     instead of down, numeral bottom left instead of bottom right - so the
+     two beats cannot resolve to the same picture while scrolling past. */
+  #chapB{justify-content:flex-start}
+  #chapB::before{
+    background-size:370%;
+    background-position:4% 30%;
+    filter:grayscale(1) brightness(.44) contrast(1.05);
+  }
+  #chapB::after{
+    content:"02";
+    align-items:flex-end;justify-content:flex-start;
+    padding:0 0 calc(.25rem + env(safe-area-inset-bottom)) 20px;
+    background:linear-gradient(0deg,rgba(8,8,10,.2) 0%,rgba(8,8,10,.55) 55%,rgba(8,8,10,.9) 100%);
+  }
   .chapter>*{position:relative;z-index:2}
   .chapter.is-in{opacity:1;transform:none}
   /* .static-hero is the desktop no-WebGL collapse, and it hides the beats
