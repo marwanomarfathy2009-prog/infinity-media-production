@@ -956,7 +956,7 @@ html{scrollbar-gutter:stable}
   .scroll-cue{color:var(--fg-3)}
 
   /* ---------- 2. screen two: the camera, scrubbed ------------
-     36 pre-rendered frames of the desktop scene drawn into one
+     60 pre-rendered frames of the desktop scene drawn into one
      canvas. drawImage swaps the picture without touching the DOM
      or decoding anything, so frames do not flicker between each
      other and the section is never mid-swap. */
@@ -976,8 +976,10 @@ html{scrollbar-gutter:stable}
      narrow phone that box is wider than the screen, so width is capped
      at 122% instead - the widest the frame can be drawn while the
      section still clips nothing but empty margin. Measured across all
-     36 frames the ink never leaves x 80..569 of 640, which leaves 71px
-     of blank frame on the tighter side; 122% clips 58px of it. */
+     60 frames the ink never leaves x 12.1%..89.0% of the frame width,
+     which leaves 11.0% of blank frame on the tighter side; 122% eats
+     9.0% of it and still clips no ink. Stated as a fraction, not in
+     pixels, so it survives the frames being re-rendered at a new size. */
   #heroCamCanvas,
   #heroCamStill{
     position:absolute;
@@ -988,7 +990,7 @@ html{scrollbar-gutter:stable}
     /* the global img/video/canvas reset caps these at 100%, which is the
        one thing this box must be allowed to exceed */
     max-width:none;
-    aspect-ratio:640/800;
+    aspect-ratio:480/600;
     height:auto;
     display:block;
   }

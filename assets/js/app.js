@@ -8,9 +8,9 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* 56.25rem = 900px. One breakpoint object, referenced by every mobile guard,
    so the CSS media queries and the JS guards can never drift apart. */
 const MOBILE_MQ = matchMedia('(max-width:56.25rem)');
-/* the mobile hero camera's 36 frames - declared up here because the boot
+/* the mobile hero camera's 60 frames - declared up here because the boot
    curtain waits on the first of them, long before the module that scrubs them */
-const SEQ_N = 36;
+const SEQ_N = 60;
 const SEQ_URL = i => `assets/img/hero-seq/f${String(i).padStart(3, '0')}.webp`;
 const DESKTOP_MQ = matchMedia('(min-width:56.3125rem)');
 const isMobile = () => MOBILE_MQ.matches;
@@ -1048,10 +1048,14 @@ function syncHeroMode() {
 }
 
 /* ══════════════════════════════════════════════════════ hero camera
-   Screen two on a phone: the desktop WebGL scene, pre-rendered to 36 frames
-   and scrubbed against this section's own scroll. 501 KB and one drawImage
+   Screen two on a phone: the desktop WebGL scene, pre-rendered to 60 frames
+   and scrubbed against this section's own scroll. 623 KB and one drawImage
    per frame, against 2.2 MB of Three.js and a GPU the phone would rather
    keep for the scroll itself.
+
+   60 steps rather than 36, at 480x600 rather than 640x800: the step is what
+   makes the scrub read as motion, and the frame size is what costs decode
+   time, so the finer sequence is the cheaper one.
 
    Two rules hold the whole thing up. Nothing is ever decoded inside the
    scroll handler - the handler only picks a bitmap that is already decoded
@@ -1116,7 +1120,7 @@ function startHeroCam() {
 
   /* Under reduced motion the sequence is the animation, so there is no
      sequence: one still, the camera assembled and facing front, and the
-     other 35 frames are never requested. */
+     other 59 frames are never requested. */
   if (RM) return;
 
   /* ---- 2. the rest, in order, once the hero is nearly gone -------------
@@ -1133,7 +1137,7 @@ function startHeroCam() {
       decode(SEQ_URL(i))
         .then(bmp => { frames[i] = bmp; scrubQueue(); load(i + 1); })
         /* one bad frame is a gap the scrubber already knows how to hold
-           through - it must not stop the other 34 */
+           through - it must not stop the other 58 */
         .catch(() => load(i + 1));
     };
     load(0);
