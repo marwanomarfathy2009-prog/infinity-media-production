@@ -1016,20 +1016,29 @@ addEventListener('resize', heroCopyTick);
    phone gets a different thing entirely: one screen, a still camera, and the
    two chapter beats promoted to real cards below it.                        */
 
-/* ---- 1c. the two beats become cards in normal flow ----------------------
-   On desktop they are absolutely positioned inside the sticky viewport; on a
-   phone they are full-screen cards after it. That is a real DOM move, and it
-   has to be reversible - putting them back before #cue restores the exact
-   original order so desktop is untouched. */
+/* ---- 1c. the two beats become one card in normal flow -------------------
+   On desktop they are two overlays absolutely positioned inside the sticky
+   viewport, revealed at different points of one scrub. On a phone that scrub
+   does not exist, and giving each its own full dark screen put two of them
+   back to back with only one photograph between them - which reads as the
+   page repeating itself no matter how differently the two are cropped. So
+   the phone gets one screen, and 02 rides on it as a second beat of type.
+
+   That is a real DOM move, and it has to be reversible - putting them both
+   back before #cue restores the exact original order so desktop is
+   untouched, and inserting #chapB there lifts it back out of #chapA. */
 function placeChapters() {
   if (!chapA || !chapB || !heroSticky) return;
   if (isMobile()) {
-    /* siblings of the hero, ahead of the reel - so .hero really is one
-       viewport tall and the cards are two more screens after it */
+    /* one sibling of the hero, ahead of the reel - so .hero really is one
+       viewport tall and the beats are one more screen after it */
     if (chapA.parentElement === heroSticky && reelSection && reelSection.parentElement) {
       reelSection.parentElement.insertBefore(chapA, reelSection);
-      reelSection.parentElement.insertBefore(chapB, reelSection);
     }
+    /* 02 stops being a section and becomes the second beat on 01's screen.
+       Nesting the element rather than unwrapping its copy is what keeps the
+       move reversible. */
+    if (chapB.parentElement !== chapA) chapA.appendChild(chapB);
   } else if (chapA.parentElement !== heroSticky) {
     /* back to the exact original order: heroCopy, chapA, chapB, cue */
     heroSticky.insertBefore(chapA, cue);

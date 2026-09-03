@@ -1017,10 +1017,13 @@ html{scrollbar-gutter:stable}
     white-space:nowrap;
   }
 
-  /* ---------- 1c. the beats, as cards in normal flow --------- */
+  /* ---------- 1c. the beats, as one card in normal flow ------
+     One photograph means one dark screen. #chapB is nested inside
+     #chapA by placeChapters and carries type only, so this block
+     styles a single full-bleed beat, not two. */
   .chapter{
     position:relative;inset:auto;
-    min-height:90svh;
+    min-height:100svh;
     display:flex;flex-direction:column;justify-content:flex-end;
     padding:var(--s5) 20px calc(var(--s4) + env(safe-area-inset-bottom));
     margin:0;overflow:hidden;isolation:isolate;
@@ -1048,45 +1051,48 @@ html{scrollbar-gutter:stable}
   }
 
   /* 01 - the same camera, but read at the lens: a hard macro crop, so the
-     beat is a new frame rather than the hero photograph a second time.
-     Type at the foot of the screen, scrim darkening downwards into it,
-     numeral held bottom right. 02 inverts every one of those. */
+     screen is a new frame rather than the hero photograph a second time.
+     Type at the foot, scrim darkening downwards into it, numeral held
+     bottom right. The crop was picked by sweeping size and position for a
+     window that lands no sample on the poster's transparent ground at
+     360x780, 375x812 or 414x896, so it opens no bare patch under the
+     type. Re-swept for the taller 100svh box: 370%/42%/63% was clean at
+     90svh but left a strip of transparent ground along the bottom edge
+     once the box grew, so it is 380%/40%/62% now. The window is
+     x 29.5..55.8% / y 24.6..85.0% of the source, and 229.6% is the least
+     these boxes need to cover. */
   #chapA::before{
-    background-size:370%;
-    background-position:42% 63%;
+    background-size:380%;
+    background-position:40% 62%;
     filter:grayscale(1) brightness(.45);
   }
   #chapA::after{content:"01"}
 
-  /* 02 - the other end of the same body: the left shoulder, where the
-     shutter dial and the AT-1 badge sit on the top plate. It used to be a
-     flat black field with type at the bottom, which read as 01 a second
-     time and left most of the screen carrying nothing at all.
+  /* 02 is not a screen of its own here. Cropping it differently was
+     tried and did not work: at that zoom, grayscale and darkened the
+     same amount, two full dark photo screens in a row still read as
+     one screen shown twice, because the problem was never the crop -
+     it was that there is one photograph and there were two screens.
 
-     01 frames x 31..58% / y 28..84% of the source, 02 frames x 3..30% /
-     y 13..69%: the two windows do not overlap at all, so they are
-     different pictures rather than the same one twice. Both crops are
-     above the 207% these boxes need to cover, and both were picked by
-     sweeping size and position for a window that lands no sample on the
-     poster's transparent ground at 360x780, 375x812 or 414x896 - which
-     is what stops either beat opening a bare patch under its own type.
-
-     Its composition is inverted against 01 on every axis - type at the
-     head of the screen instead of the foot, scrim darkening upwards
-     instead of down, numeral bottom left instead of bottom right - so the
-     two beats cannot resolve to the same picture while scrolling past. */
-  #chapB{justify-content:flex-start}
-  #chapB::before{
-    background-size:370%;
-    background-position:4% 30%;
-    filter:grayscale(1) brightness(.44) contrast(1.05);
+     So it is nested inside 01 and becomes the second beat of type on
+     that one screen. It keeps its own reveal, so the screen still
+     arrives in two moments as it is read, but it does not take a
+     second viewport and there is no second numeral. */
+  #chapA > #chapB{
+    /* above 01's scrim, like 01's own type - not in the flow beneath it */
+    position:relative;z-index:2;
+    min-height:0;
+    display:block;
+    padding:0;
+    margin:var(--s4) 0 0;
+    overflow:visible;
+    isolation:auto;
+    background:none;
   }
-  #chapB::after{
-    content:"02";
-    align-items:flex-end;justify-content:flex-start;
-    padding:0 0 calc(.25rem + env(safe-area-inset-bottom)) 20px;
-    background:linear-gradient(0deg,rgba(8,8,10,.2) 0%,rgba(8,8,10,.55) 55%,rgba(8,8,10,.9) 100%);
-  }
+  /* the image bed, the scrim and the numeral all belong to the screen,
+     and the screen is 01's */
+  #chapA > #chapB::before,
+  #chapA > #chapB::after{content:none;display:none}
   .chapter>*{position:relative;z-index:2}
   .chapter.is-in{opacity:1;transform:none}
   /* .static-hero is the desktop no-WebGL collapse, and it hides the beats
