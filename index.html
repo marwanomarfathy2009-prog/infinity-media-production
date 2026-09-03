@@ -238,15 +238,15 @@
 </section>
 
 <!-- ══ HERO CAMERA (mobile only) ══
-     One screen for the object the brand is named after. The 60 frames are a
+     One screen for the object the brand is named after. The 40 frames are a
      pre-rendered capture of the desktop WebGL scene, scrubbed on scroll, so a
-     phone gets the same beat - apart, then rebuilt - for 623 KB instead of
+     phone gets the same beat - apart, then rebuilt - for 339 KB instead of
      2.2 MB and no GPU work at all.
 
      display:none above 900px. Desktop never paints it, never loads a frame,
      and its own DOM order and layout are exactly what they were. -->
 <section id="heroCam">
-  <canvas id="heroCamCanvas" width="480" height="600" role="img"
+  <canvas id="heroCamCanvas" width="440" height="550" role="img"
           aria-label="A Canon AT-1 film camera, taken apart and rebuilt"></canvas>
   <!-- No src until it is needed. An <img> inside a display:none section is
        still fetched, and the sequence almost never fails - so the fallback

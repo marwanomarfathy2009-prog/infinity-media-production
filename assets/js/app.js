@@ -8,10 +8,19 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* 56.25rem = 900px. One breakpoint object, referenced by every mobile guard,
    so the CSS media queries and the JS guards can never drift apart. */
 const MOBILE_MQ = matchMedia('(max-width:56.25rem)');
-/* the mobile hero camera's 60 frames - declared up here because the boot
+/* the mobile hero camera's 40 frames - declared up here because the boot
    curtain waits on the first of them, long before the module that scrubs them */
-const SEQ_N = 60;
+const SEQ_N = 40;
 const SEQ_URL = i => `assets/img/hero-seq/f${String(i).padStart(3, '0')}.webp`;
+/* How many decoded frames the camera is allowed to hold either side of the
+   one on screen. A decoded frame is 440 x 550 x 4 = 968 KB resident whatever
+   it weighed on the wire, so these two numbers are the memory ceiling:
+   13 frames = 12.6 MB. Ahead is deeper than behind because down is the
+   direction people scroll. */
+const WINDOW_AHEAD = 8, WINDOW_BEHIND = 4;
+/* Enough parallel decodes to stay ahead of a fast scrub, few enough that a
+   phone is not decoding the whole window at once. */
+const MAX_INFLIGHT = 4;
 const DESKTOP_MQ = matchMedia('(min-width:56.3125rem)');
 const isMobile = () => MOBILE_MQ.matches;
 const SAVE_DATA_EARLY = !!(navigator.connection && navigator.connection.saveData);
@@ -1048,19 +1057,27 @@ function syncHeroMode() {
 }
 
 /* ══════════════════════════════════════════════════════ hero camera
-   Screen two on a phone: the desktop WebGL scene, pre-rendered to 60 frames
-   and scrubbed against this section's own scroll. 623 KB and one drawImage
+   Screen two on a phone: the desktop WebGL scene, pre-rendered to 40 frames
+   and scrubbed against this section's own scroll. 339 KB and one drawImage
    per frame, against 2.2 MB of Three.js and a GPU the phone would rather
    keep for the scroll itself.
 
-   60 steps rather than 36, at 480x600 rather than 640x800: the step is what
-   makes the scrub read as motion, and the frame size is what costs decode
-   time, so the finer sequence is the cheaper one.
+   Three rules hold the whole thing up.
 
-   Two rules hold the whole thing up. Nothing is ever decoded inside the
-   scroll handler - the handler only picks a bitmap that is already decoded
-   and blits it - and the canvas is never cleared, so a frame that has not
-   arrived yet leaves the last one standing rather than a hole.            */
+   Nothing is ever decoded inside the scroll handler - the handler only picks
+   a bitmap that is already decoded and blits it.
+
+   The canvas is never cleared, so a frame that has not arrived yet leaves
+   the last one standing rather than a hole.
+
+   And only a window of frames is held decoded at once. Transfer weight was
+   never the thing that stuttered a real phone: a decoded frame costs
+   width x height x 4 bytes resident whatever it weighed on the wire, so the
+   whole sequence held at once was 40 x 440 x 550 x 4 = 39 MB, and the 60
+   frames before it were 69 MB. That is enough to make a low-end Android
+   collect garbage mid-scroll. WINDOW_AHEAD + WINDOW_BEHIND + 1 = 13 frames
+   resident is 12.6 MB, and the eviction runs on the same tick as the paint
+   so the ceiling holds no matter how far the scrub jumps.                 */
 const camSection = $('#heroCam'), camCanvas = $('#heroCamCanvas');
 const camStill = $('#heroCamStill');
 let camStarted = false;
@@ -1073,10 +1090,16 @@ function startHeroCam() {
   if (!ctx) return camFallback();
 
   /* index -> ImageBitmap (or HTMLImageElement on the no-createImageBitmap
-     path). Sparse on purpose: a hole means "not decoded yet", and the
-     scrubber reads it as "hold what is already on screen". */
+     path). Sparse on purpose, in both directions now: a hole is either a
+     frame that has not decoded yet or one that has been evicted behind the
+     scrub, and the scrubber reads both the same way - "hold what is already
+     on screen". */
   const frames = new Array(SEQ_N);
+  const pending = new Set();   /* decodes in flight */
+  const failed  = new Set();   /* 404s and decode errors, never retried */
   let drawn = -1;
+  let want = RM ? SEQ_N - 1 : 0;
+  let armed = false;
 
   const paint = i => {
     if (i === drawn || !frames[i]) return;
@@ -1086,11 +1109,70 @@ function startHeroCam() {
     drawn = i;
   };
 
-  /* the nearest frame at or below the one we want that is actually decoded.
-     Loading runs in order, so this is normally the newest arrival. */
-  const paintNearest = want => {
-    for (let i = want; i >= 0; i--) if (frames[i]) return paint(i);
+  /* The nearest decoded frame in either direction. It has to search both
+     ways now: behind the scrub the frames have been released, so "walk down
+     to zero" would fall off the end of the window and find nothing. Finding
+     nothing is still safe - the canvas keeps the last picture - but the
+     closest neighbour is a better one to hold on. */
+  const paintNearest = idx => {
+    if (frames[idx]) return paint(idx);
+    for (let d = 1; d < SEQ_N; d++) {
+      if (frames[idx - d]) return paint(idx - d);
+      if (frames[idx + d]) return paint(idx + d);
+    }
   };
+
+  /* ---- the resident window --------------------------------------------
+     Ahead is deeper than behind because scrolling down is the common
+     direction and a frame ahead is one about to be needed, while a frame
+     behind is only needed if the reader scrolls back up. */
+  const inWindow = i => i >= want - WINDOW_BEHIND && i <= want + WINDOW_AHEAD;
+
+  function evict() {
+    for (let i = 0; i < SEQ_N; i++) {
+      const f = frames[i];
+      if (!f || inWindow(i)) continue;
+      frames[i] = undefined;
+      /* an ImageBitmap holds its pixels off-heap and is not released by
+         dropping the reference alone - close() is what frees it. The <img>
+         fallback has no close() and is left to the collector. */
+      if (typeof f.close === 'function') f.close();
+    }
+  }
+
+  /* Start decodes for the holes in the window, nearest the scrub first, up
+     to MAX_INFLIGHT at a time. Called from the scroll handler, but it only
+     starts work - it never waits for a decode. */
+  function pump() {
+    if (!armed) return;
+    while (pending.size < MAX_INFLIGHT) {
+      let next = -1;
+      for (let d = 0; d <= Math.max(WINDOW_AHEAD, WINDOW_BEHIND) && next < 0; d++) {
+        const ahead = want + d, behind = want - d;
+        if (ahead < SEQ_N && inWindow(ahead) && !frames[ahead] && !pending.has(ahead) && !failed.has(ahead)) next = ahead;
+        else if (behind >= 0 && inWindow(behind) && !frames[behind] && !pending.has(behind) && !failed.has(behind)) next = behind;
+      }
+      if (next < 0) return;
+      const i = next;
+      pending.add(i);
+      decode(SEQ_URL(i)).then(bmp => {
+        pending.delete(i);
+        /* the scrub may have moved on while this was in flight - a frame
+           that is no longer wanted is closed rather than stored, or the
+           window would leak past its ceiling */
+        if (inWindow(i)) { frames[i] = bmp; scrubQueue(); }
+        else if (typeof bmp.close === 'function') bmp.close();
+        pump();
+      }).catch(() => {
+        pending.delete(i);
+        /* one bad frame is a gap the scrubber already knows how to hold
+           through - it must not stop the other 39, and it must not be
+           retried on every tick either */
+        failed.add(i);
+        pump();
+      });
+    }
+  }
 
   const decode = url => {
     if (typeof createImageBitmap === 'function') {
@@ -1111,7 +1193,9 @@ function startHeroCam() {
   /* ---- 1. the first frame, straight away -------------------------------
      It is preloaded in the document head at this breakpoint, so this is a
      cache read. The section has a picture in it before anything else runs
-     and is never empty at any point. */
+     and is never empty at any point. It is stored outside the window
+     machinery so that the one guaranteed picture is never the frame that
+     eviction takes. */
   const first = RM ? SEQ_N - 1 : 0;
   decode(SEQ_URL(first)).then(bmp => {
     frames[first] = bmp;
@@ -1120,27 +1204,18 @@ function startHeroCam() {
 
   /* Under reduced motion the sequence is the animation, so there is no
      sequence: one still, the camera assembled and facing front, and the
-     other 59 frames are never requested. */
+     other 39 frames are never requested. */
   if (RM) return;
 
-  /* ---- 2. the rest, in order, once the hero is nearly gone -------------
+  /* ---- 2. open the window once the hero is nearly gone ------------------
      #heroCam follows #heroScroll immediately and both are one viewport
      tall, so "this section is within one viewport of entering" is the same
-     moment as "the hero is within one viewport of leaving". */
-  let queued = false;
+     moment as "the hero is within one viewport of leaving". Before this
+     fires nothing past the first frame is fetched at all. */
   function queueRest() {
-    if (queued) return;
-    queued = true;
-    const load = i => {
-      if (i >= SEQ_N) return;
-      if (i === first) return load(i + 1);
-      decode(SEQ_URL(i))
-        .then(bmp => { frames[i] = bmp; scrubQueue(); load(i + 1); })
-        /* one bad frame is a gap the scrubber already knows how to hold
-           through - it must not stop the other 58 */
-        .catch(() => load(i + 1));
-    };
-    load(0);
+    if (armed) return;
+    armed = true;
+    pump();
   }
   const armRest = whenSeen(queueRest, camSection, innerHeight);
   if (HAS_IO) {
@@ -1163,7 +1238,13 @@ function startHeroCam() {
     const span = innerHeight + r.height;
     if (span <= 0) return;
     const p = clamp((innerHeight - r.top) / span, 0, 1);
-    paintNearest(clamp(Math.round(p * (SEQ_N - 1)), 0, SEQ_N - 1));
+    want = clamp(Math.round(p * (SEQ_N - 1)), 0, SEQ_N - 1);
+    /* paint first, so the picture is never waiting on bookkeeping, then
+       move the window: release what the scrub has left behind and start
+       the decodes it is heading into. Neither of those blocks. */
+    paintNearest(want);
+    evict();
+    pump();
   }
   function scrubQueue() { if (!scrubQueued) { scrubQueued = true; raf(scrubTick); } }
   addEventListener('scroll', scrubQueue, { passive: true });
