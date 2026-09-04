@@ -581,7 +581,7 @@ const io = HAS_IO ? new IntersectionObserver(es => es.forEach(e => {
   io.unobserve(e.target);
 }), { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }) : null;
 
-$$('.sec-head,.studio-top,.svc,.contact-head,.contact-grid,.reel-copy,.stats,.films,.rail,.work-empty')
+$$('.sec-head,.studio-top,.svc,.contact-head,.contact-grid,.reel-copy,.stats,.films,.rail,.work-empty,.process')
   .forEach(el => { if (el.closest('[hidden]')) return; el.classList.add('reveal'); io && io.observe(el); });
 $$('h1,h2,.display').forEach(h => { if (h.querySelector('.ln') && io) io.observe(h); });
 
@@ -690,6 +690,29 @@ reelVid.addEventListener('pause', () => {
   if (isMobile() && reelVid.currentTime === 0) reelStage.classList.remove('is-playing');
 });
 if (reelPlay) reelPlay.addEventListener('click', startReel);
+
+/* "Watch the reel" under the copy opens the reel in the player rather than
+   unmuting a section that is, on desktop, already running. Same control and
+   same result on both layouts: sound, a scrub bar and the whole frame. The
+   inline video is left alone behind it - it is muted, and the observer that
+   pauses it off-screen still owns it. */
+const reelCta = $('#reelCta');
+if (reelCta) reelCta.addEventListener('click', () => {
+  lastFocus = document.activeElement;
+  track('reel_open');
+  lbTitle.textContent = 'Showreel';
+  lbMeta.textContent = 'Infinity';
+  lb.setAttribute('aria-label', 'Infinity showreel');
+  lbFrame.classList.remove('is-vertical');
+  lbFrame.innerHTML =
+    `<video src="${esc(S.reel.src)}" ${S.reel.poster ? `poster="${esc(S.reel.poster)}"` : ''}
+      controls autoplay playsinline preload="metadata"></video>`;
+  lbInfo.innerHTML = '';
+  lbInfo.hidden = true;
+  lb.classList.add('is-open');
+  lockScroll(true);
+  focusInto($('#lbClose'), lb);
+});
 
 const loadReel = whenSeen(() => {
   if (SAVE_DATA_EARLY) return;

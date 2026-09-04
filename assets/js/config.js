@@ -122,7 +122,7 @@ window.SITE = {
   /* ---- STUDIO STATS ---- */
   stats: [
     { big:"4K→8K",      small:"Capture pipeline" },
-    { big:"In-house",   small:"Edit · Color · Sound" },
+    { big:"In-house",   small:"Edit · Colour · Sound" },
     { big:"End to end", small:"Concept to delivery" }
   ]
 };

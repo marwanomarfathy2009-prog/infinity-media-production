@@ -1200,3 +1200,108 @@ html{scrollbar-gutter:stable}
 @media (max-width:56.25rem) and (prefers-reduced-motion: reduce){
   .chapter{opacity:1!important;transform:none!important;transition:none!important}
 }
+
+/* ============================================================
+   STRUCTURE PASS
+   The page in its new order: hero, reel, work, services,
+   studio, process, contact. Nothing below introduces a new
+   visual language. It gives the two sections that were added
+   the one the site already speaks, and re-tunes the three whose
+   copy changed shape.
+   ============================================================ */
+
+/* ---------- tonal progression: six steps, not four ----------
+   Two sections were inserted into the ramp, so it gets two more
+   steps of the same size. Every previously published value -
+   white, work, studio, contact - is unchanged, so the sections
+   that were already on the page still sit on exactly the tone
+   they sat on before. */
+:root{
+  --tone-2b:#fcfcfb;   /* services */
+  --tone-3b:#fafaf8;   /* process  */
+}
+#services{background:var(--tone-2b)}
+#process{background:var(--tone-3b)}
+
+/* ---------- a label that carries two lines ------------------
+   .eyebrow is a flex row, which is right for a single line with
+   a rule beside it and wrong for a stacked address. */
+.eyebrow-stack{display:block;line-height:1.6}
+.eyebrow-stack span{display:block}
+
+/* ---------- hero: type, then the two ways in ----------------
+   The supporting paragraph is gone, so the headline holds the
+   space it used to, and the buttons arrive where it did rather
+   than waiting behind a delay for copy that is not there. */
+.hero-copy .display{margin-bottom:clamp(2rem,3.2vw,2.7rem)}
+.hero-copy.is-in .hero-actions{transition-delay:.42s}
+
+/* ---------- reel: the section states what it is -------------
+   The supporting line and the control were both hidden here
+   before; the reel is the second thing on the page now and has
+   to introduce itself rather than only look good. */
+.reel-copy .lede{display:block;color:rgba(255,255,255,.74);
+  max-width:38ch;margin-top:1.05rem}
+.reel-actions{margin-top:1.7rem}
+/* .btn-line is drawn for the light stage - on the one dark
+   surface on the site it needs the inverse of its own palette */
+.reel-actions .btn-line{border-color:rgba(255,255,255,.45);color:#fff}
+.reel-actions .btn-line::after{background:#fff}
+.reel-actions .btn-line:hover{color:#0c0c0d;border-color:#fff}
+@media (max-width:48rem){
+  /* the round play control is the reel's call to action on a
+     phone; a second one under the copy is the same tap twice */
+  .reel-actions{display:none}
+  .reel-copy .lede{font-size:.95rem;max-width:30ch;margin-top:.75rem}
+}
+
+/* ---------- work: one featured cut, then the body of work ----
+   Films leads the section as the full-frame piece and the
+   verticals follow it. The gap between them is the section's
+   own beat, not a heading. */
+#shortsWrap{padding-top:clamp(3rem,7vw,5.5rem)}
+@media (min-width:901px){
+  /* nine pieces of identical shape read as a card grid. Dropping
+     the middle column half a step turns the same nine into a
+     spread, with no change to the cards themselves. */
+  .rail-grid .short:nth-child(3n+2){margin-top:clamp(2rem,4vw,3.5rem)}
+}
+
+/* ---------- a section headed by its label alone -------------
+   Services and Process are answered by their rows, not by a
+   headline above them. The label is the heading, and it keeps
+   the tighter spacing that goes with a small one. */
+.sec-head-label{padding-bottom:var(--s4)}
+.sec-head-label .eyebrow{margin-bottom:0}
+
+/* ---------- process ----------------------------------------
+   Four stages across on desktop, two up at tablet, one down a
+   phone. The rule above each stage is the section's only
+   ornament and it is the same hairline used everywhere else. */
+.process{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:var(--s4) var(--s3);list-style:none}
+.process li{position:relative;border-top:1px solid var(--line);
+  padding-top:var(--s3)}
+/* the live segment of that rule: the stage's own mark */
+.process li::before{content:"";position:absolute;left:0;top:-1px;
+  width:2.75rem;height:1px;background:var(--fg)}
+.process-n{display:block;font-family:"Space Grotesk",sans-serif;
+  font-size:.72rem;font-weight:600;letter-spacing:.2em;color:var(--fg-3)}
+.process-t{margin-top:.85rem;font-size:clamp(1.1rem,1.8vw,1.45rem);
+  font-weight:600;letter-spacing:-.026em;line-height:1.15}
+.process li p{margin-top:.55rem;color:var(--fg-2);font-size:.95rem;
+  line-height:1.6;max-width:26ch;text-wrap:pretty}
+@media (max-width:56.25rem){
+  .process{grid-template-columns:1fr 1fr;gap:var(--s3)}
+  .process li p{max-width:32ch}
+}
+@media (max-width:30rem){
+  .process{grid-template-columns:1fr;gap:0}
+  .process li{padding-block:1.35rem}
+  .process li p{max-width:38ch}
+}
+
+/* ---------- contact: the closing frame ----------------------
+   The head is the label, the line and the promise. The form
+   below it is the call to action, so nothing else is said. */
+.contact-head .promise{max-width:34ch}
